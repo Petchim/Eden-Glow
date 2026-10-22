@@ -1,1 +1,0 @@
-import{j as r}from"./index-DNNlcUrm.js";import{S as i}from"./ServicePage-9ateAl_W.js";import{S as o}from"./services-DgSpN73c.js";import"./PageHero-r0MlYnVX.js";import"./Faq-DyeNo7e_.js";import"./ServiceSections-a1VvCr27.js";function f(){return r.jsx(i,{service:o.hair})}export{f as default};
