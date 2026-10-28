@@ -40,6 +40,29 @@ export const BUSINESS = {
 
   instagramUrl: '', // TODO: e.g. 'https://instagram.com/yourhandle'
   instagramHandle: '', // TODO: e.g. '@edenglowstudio'
+
+  // Area and city of the studio. Once `city` is set, a location line appears in the home hero,
+  // and the city is added to the home page title. `country` is a two-letter code, e.g. 'IN'.
+  // The first line of `address` above is used as the street address for search engines.
+  location: {
+    area: '', // TODO: optional, e.g. the neighbourhood
+    city: '', // TODO
+    region: '', // TODO: optional, state or region
+    postalCode: '', // TODO: optional
+    country: '', // TODO: optional, e.g. 'IN'
+  },
+
+  // ---------- search engines & link previews ----------
+  // The live website address, e.g. 'https://www.yourdomain.com' (https, no trailing slash).
+  // It is needed for the canonical URL, sitemap.xml, and the image shown when a link is shared.
+  // While it is empty those are simply left out, rather than pointing at a made-up address.
+  siteUrl: '', // TODO
+
+  // Optional: opening hours in schema.org format for search engines, e.g. ['Tu-Su 10:00-20:00'].
+  // (The `hours` list above is what visitors see; keep the two in step.)
+  openingHoursSchema: [],
+  // Optional: price band for search engines, e.g. '₹₹'. Leave empty if unsure.
+  priceRange: '',
 };
 
 /* ---------- helpers (no need to edit) ---------- */
@@ -51,3 +74,13 @@ export const waLink = (text) =>
 export const telLink = () => `tel:${BUSINESS.phone.replace(/[^\d+]/g, '')}`;
 export const mailLink = (subject, body) =>
   `mailto:${BUSINESS.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+export const hasInstagram = () => /^https:\/\/(www\.)?instagram\.com\/[^\s]+$/.test(BUSINESS.instagramUrl);
+/** "Area, City" for display, or '' until a city is set. */
+export const locationLine = () =>
+  BUSINESS.location.city ? [BUSINESS.location.area, BUSINESS.location.city].filter(Boolean).join(', ') : '';
+/** The live site address, or '' if it is unset or still a placeholder. */
+export const siteUrl = () => {
+  const url = BUSINESS.siteUrl.trim().replace(/\/+$/, '');
+  if (!/^https:\/\/[a-z0-9.-]+\.[a-z]{2,}$/i.test(url)) return '';
+  return /(^|\.)(example\.(com|org|net)|yourdomain\.[a-z]+|localhost)$/i.test(new URL(url).hostname) ? '' : url;
+};

@@ -31,7 +31,7 @@ export default function Gallery() {
                 onClick={() => setActive(i)}
                 aria-label={`Open image ${i + 1}: ${g.cat} — ${g.caption}`}
               >
-                <Img src={g.src} alt={`${g.cat}: ${g.caption}`} position={g.position} sizes="(max-width: 700px) 50vw, 30vw" />
+                <Img src={g.src} srcSet={g.srcSet} alt={`${g.cat}: ${g.caption}`} position={g.position} sizes="(max-width: 700px) 50vw, 30vw" />
                 <span className="hgal-cap" aria-hidden="true"><b>{g.cat}</b>{g.caption}</span>
               </button>
             </Reveal>

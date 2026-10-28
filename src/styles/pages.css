@@ -97,6 +97,8 @@
 .o-num { font-family: var(--serif); font-style: italic; font-size: 17px; color: var(--accent); }
 .o-title { display: block; font-family: var(--serif); font-weight: 300; font-size: clamp(30px, 3vw, 44px); line-height: 1.08; margin: 10px 0 12px; transition: color 0.4s ease; color: var(--text); }
 .o-text { display: block; color: var(--muted); font-size: 15.5px; line-height: 1.75; max-width: 460px; }
+/* optional starting price (data/services.js) */
+.o-price { display: block; margin-top: 10px; font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); font-weight: 500; }
 .o-list { margin: 22px 0 18px; border-top: 1px solid var(--line-soft); }
 .o-list li { display: flex; align-items: center; gap: 14px; padding: 11px 0; border-bottom: 1px solid var(--line-soft); font-size: 15px; color: var(--text); }
 .o-list li::before { content: ''; width: 5px; height: 5px; flex: none; transform: rotate(45deg); border: 1px solid var(--accent); }

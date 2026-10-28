@@ -34,6 +34,7 @@ export default function Services() {
                   <span className="svcx-no" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
                   <span className="svcx-name">{s.title}</span>
                   <span className="svcx-kick">{s.kicker}</span>
+                  {s.price && <span className="svcx-price">{s.price}</span>}
                 </span>
                 <span className="svcx-go" aria-hidden="true"><Icon name="arrow" size={16} /></span>
               </Link>

@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { HOME_IMAGES } from '../../data/images.js';
 import { BOOK_PATH, HERO_FEATURES } from '../../data/content.js';
-import { BUSINESS } from '../../config/business.js';
+import { BUSINESS, locationLine } from '../../config/business.js';
 import { useParallax } from '../../hooks/useUi.js';
 import Img from '../ui/Img.jsx';
 import Button from '../ui/Button.jsx';
@@ -13,6 +13,7 @@ export default function Hero() {
   const media = useRef(null);
   useParallax(media, 0.06);
   const { artInImage, ...image } = HOME_IMAGES.hero;
+  const place = locationLine();
 
   return (
     <section className={`hero ${artInImage ? 'hero--art-in-image' : ''}`} aria-labelledby="hero-title">
@@ -44,6 +45,12 @@ export default function Hero() {
             <p className="hero-text">
               A premium beauty studio for hair, skin, nails, lashes and makeup. Experience personalised care in a calm and elegant space.
             </p>
+            {place && (
+              <p className="hero-place">
+                <Icon name="pin" size={18} stroke={1.2} />
+                <span>{place}</span>
+              </p>
+            )}
             <div className="ctas hero-ctas">
               <Button to={BOOK_PATH} arrow>Book Appointment</Button>
               <Button href="#services" variant="line">Explore Services</Button>

@@ -9,6 +9,8 @@
    `order` decides which sections appear and in what order, and each
    section has a `variant` so the pages don't all look the same.
    Title lines: wrap a word in *asterisks* to set it in gold italic.
+   `price` on a treatment (optional): the real starting price exactly as it
+   should appear, e.g. 'From ₹1,500'. Left empty, no price is shown.
    ===================================================================== */
 import { HAIR_IMAGES, SKIN_IMAGES, NAILS_IMAGES, LASH_IMAGES, MAKEUP_IMAGES } from './images.js';
 
@@ -47,24 +49,28 @@ export const SERVICE_PAGES = {
         {
           title: 'Haircuts & styling',
           text: 'Precision cuts and finishing styles shaped around your face, texture and lifestyle.',
+          price: '',
           includes: ['Consultation and cut', 'Wash, cut and blow-dry', 'Blow-dry and finish'],
           image: HAIR_IMAGES.cut,
         },
         {
           title: 'Hair colouring',
           text: 'Colour chosen with your skin tone and maintenance in mind — from a subtle refresh to a bolder change.',
+          price: '',
           includes: ['Root and all-over colour', 'Highlights and soft blends', 'Colour consultation'],
           image: HAIR_IMAGES.colour,
         },
         {
           title: 'Hair treatments',
           text: 'Nourishing in-salon care to help hair feel softer, smoother and easier to manage.',
+          price: '',
           includes: ['Conditioning treatments', 'Scalp-care rituals', 'Advice for home care'],
           image: HAIR_IMAGES.treatment,
         },
         {
           title: 'Occasion hairstyling',
           text: 'Updos, curls and polished styles for weddings, celebrations and evenings out.',
+          price: '',
           includes: ['Updos and braids', 'Curls and waves', 'Bridal and guest styling'],
           image: HAIR_IMAGES.occasion,
         },
@@ -111,10 +117,10 @@ export const SERVICE_PAGES = {
       eyebrow: 'Facials & skincare',
       title: ['Treatments,', '*thoughtfully chosen.*'],
       items: [
-        { title: 'Signature facial', text: 'A relaxing facial with cleansing, gentle exfoliation, massage and a mask chosen for your skin.', image: SKIN_IMAGES.facial },
-        { title: 'Cleansing facial', text: 'A deep-cleansing treatment for skin that feels congested or tired.', image: SKIN_IMAGES.cleanse },
-        { title: 'Hydrating masks', text: 'Soothing masks and massage for skin that feels dry or dull.', image: SKIN_IMAGES.mask },
-        { title: 'Skin consultation', text: 'A conversation about your routine with suggestions for caring for your skin at home.', image: SKIN_IMAGES.homecare },
+        { title: 'Signature facial', text: 'A relaxing facial with cleansing, gentle exfoliation, massage and a mask chosen for your skin.', price: '', image: SKIN_IMAGES.facial },
+        { title: 'Cleansing facial', text: 'A deep-cleansing treatment for skin that feels congested or tired.', price: '', image: SKIN_IMAGES.cleanse },
+        { title: 'Hydrating masks', text: 'Soothing masks and massage for skin that feels dry or dull.', price: '', image: SKIN_IMAGES.mask },
+        { title: 'Skin consultation', text: 'A conversation about your routine with suggestions for caring for your skin at home.', price: '', image: SKIN_IMAGES.homecare },
       ],
     },
     info: {
@@ -162,10 +168,10 @@ export const SERVICE_PAGES = {
       title: ['Hands and feet,', '*cared for.*'],
       intro: 'Every appointment includes careful prep — shaping, cuticle care and a tidy finish — so your colour looks its best and lasts.',
       items: [
-        { title: 'Manicure', text: 'Shaping, cuticle care, hand massage and classic polish.', image: NAILS_IMAGES.manicure },
-        { title: 'Pedicure', text: 'A soak, foot care and polish for feet that feel refreshed.', image: NAILS_IMAGES.pedicure },
-        { title: 'Gel polish', text: 'Glossy, long-wearing colour cured under a lamp.', image: NAILS_IMAGES.gel },
-        { title: 'Nail art', text: 'From fine lines to hand-painted designs — bring your inspiration.', image: NAILS_IMAGES.art },
+        { title: 'Manicure', text: 'Shaping, cuticle care, hand massage and classic polish.', price: '', image: NAILS_IMAGES.manicure },
+        { title: 'Pedicure', text: 'A soak, foot care and polish for feet that feel refreshed.', price: '', image: NAILS_IMAGES.pedicure },
+        { title: 'Gel polish', text: 'Glossy, long-wearing colour cured under a lamp.', price: '', image: NAILS_IMAGES.gel },
+        { title: 'Nail art', text: 'From fine lines to hand-painted designs — bring your inspiration.', price: '', image: NAILS_IMAGES.art },
       ],
     },
     gallery: { eyebrow: 'Nail art gallery', title: ['Colour, shine', 'and *detail.*'], cat: 'Nails', variant: 'masonry' },
@@ -217,10 +223,10 @@ export const SERVICE_PAGES = {
       title: ['Find your', '*lash look.*'],
       image: LASH_IMAGES.technician,
       items: [
-        { title: 'Natural lash styling', text: 'Soft, subtle definition that looks like your lashes on a very good day.' },
-        { title: 'Fuller, defined looks', text: 'More density and drama for a striking, polished finish.' },
-        { title: 'Lash lift & tint', text: 'A curl and colour for your own natural lashes — no extensions.' },
-        { title: 'Lash refills', text: 'Maintenance appointments to keep your set looking full.' },
+        { title: 'Natural lash styling', text: 'Soft, subtle definition that looks like your lashes on a very good day.', price: '' },
+        { title: 'Fuller, defined looks', text: 'More density and drama for a striking, polished finish.', price: '' },
+        { title: 'Lash lift & tint', text: 'A curl and colour for your own natural lashes — no extensions.', price: '' },
+        { title: 'Lash refills', text: 'Maintenance appointments to keep your set looking full.', price: '' },
       ],
     },
     gallery: { eyebrow: 'Close-up', title: ['In the', '*details.*'], cat: 'Lashes', variant: 'strip' },

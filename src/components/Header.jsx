@@ -175,7 +175,10 @@ export default function Header() {
           </nav>
           <span className="header-divider" aria-hidden="true" />
           <div className="header-actions">
-            <Button to={BOOK_PATH} arrow className="header-cta">Book Appointment</Button>
+            <Button to={BOOK_PATH} arrow className="header-cta" aria-label="Book Appointment">
+              <span className="header-cta-full">Book Appointment</span>
+              <span className="header-cta-short">Book</span>
+            </Button>
             <button type="button" className="icon-btn" aria-label="Search the site" aria-haspopup="dialog" onClick={() => setSearching(true)}>
               <Icon name="search" size={21} stroke={1.4} />
             </button>

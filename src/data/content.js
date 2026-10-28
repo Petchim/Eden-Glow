@@ -42,37 +42,45 @@ export const bookLink = (service, treatment) => {
 
 export const DISCIPLINES = ['Hair', 'Skin', 'Nails', 'Lashes', 'Makeup', 'Academy'];
 
-/* Home page service cards — each opens its own page. */
+/* Home page service cards — each opens its own page.
+   `price` (optional): a real starting price as you want it shown, e.g. 'From ₹1,500'.
+   While empty, no price is shown. */
 export const SERVICES = [
   {
     id: 'hair', title: 'Hair', short: 'Hair Styling', kicker: 'Cut · Colour · Care', layout: 'feature', to: '/hair',
     desc: 'Hair styling, haircuts, colour and hair-care treatments — shaped around your texture, your routine and the way you like to wear it.',
     image: CARD_IMAGES.hair,
+    price: '',
   },
   {
     id: 'skin', title: 'Skin', short: 'Skin Care', kicker: 'Facials · Skincare', layout: 'offset', to: '/skin',
     desc: 'Facials, skincare and beauty treatments that leave skin feeling cared for and looking quietly radiant.',
     image: CARD_IMAGES.skin,
+    price: '',
   },
   {
     id: 'nails', title: 'Nails', short: 'Nails', kicker: 'Manicure · Pedicure · Art', layout: 'small', to: '/nails',
     desc: 'Nail care, manicure, pedicure and nail artistry with a clean, considered finish.',
     image: CARD_IMAGES.nails,
+    price: '',
   },
   {
     id: 'lashes', title: 'Lashes', short: 'Lashes', kicker: 'Styling · Enhancement', layout: 'wide', to: '/lashes',
     desc: 'Lash styling and enhancement to frame your eyes — from barely-there to beautifully defined.',
     image: CARD_IMAGES.lashes,
+    price: '',
   },
   {
     id: 'makeup', title: 'Makeup', short: 'Makeup', kicker: 'Occasion · Party · Bridal', layout: 'small', to: '/makeup',
     desc: 'Occasion, party and bridal makeup designed around your features, your outfit and your day.',
     image: CARD_IMAGES.makeup,
+    price: '',
   },
   {
     id: 'academy', title: 'Academy', short: 'Academy', kicker: 'Training · Learning', layout: 'side', to: '/academy',
     desc: 'Beauty training and professional learning for those who want to make the craft their own.',
     image: CARD_IMAGES.academy,
+    price: '',
   },
 ];
 
@@ -99,11 +107,13 @@ export const HERO_FEATURES = [
   { icon: 'calendar', label: 'Easy WhatsApp booking' },
 ];
 
-/* Home "Elevate Your Everyday Beauty" section. Confirm these points describe the studio. */
+/* Home "Elevate Your Everyday Beauty" section. Confirm these points describe the studio.
+   Points marked `confirmed: false` are factual claims about the studio and stay hidden
+   until the studio confirms them — then change them to `confirmed: true`. */
 export const EXPERIENCE_FEATURES = [
   { icon: 'heart', title: 'Professional Care', text: 'Careful, attentive work from first consultation to final finish.' },
-  { icon: 'shield', title: 'Hygienic Environment', text: 'Clean tools and a well-kept studio for every visit.' },
-  { icon: 'tools', title: 'Modern Equipment', text: 'Up-to-date tools and products chosen for each treatment.' },
+  { icon: 'shield', title: 'Hygienic Environment', text: 'Clean tools and a well-kept studio for every visit.', confirmed: false },
+  { icon: 'tools', title: 'Modern Equipment', text: 'Up-to-date tools and products chosen for each treatment.', confirmed: false },
   { icon: 'sparkle', title: 'Personalised Experience', text: 'Every treatment shaped around you and your routine.' },
 ];
 
@@ -124,6 +134,14 @@ export const WHY = [
 ];
 
 /* Testimonials — add ONLY genuine feedback, with the client's permission.
-   Example: { quote: '…', name: 'First name', service: 'Hair' }
-   While this list is empty, the site shows an invitation to share feedback. */
+   Example: { quote: '…', name: 'First name', service: 'Hair', source: 'Google review', permission: true }
+   `permission: true` records that the client agreed to be quoted; entries without it are not shown.
+   `service` and `source` (where the review was left) are optional.
+   While no entry qualifies, the home page has no reviews section at all. */
 export const TESTIMONIALS = [];
+export const VERIFIED_TESTIMONIALS = TESTIMONIALS.filter((t) => t.permission === true && t.quote?.trim() && t.name?.trim());
+
+/* Instagram posts for the home page strip (optional). Save each image in /public/images/instagram/
+   and link to the real post, e.g. { src: '/images/instagram/1.jpg', alt: '…', url: 'https://www.instagram.com/p/…' }.
+   The strip appears once `instagramUrl` is set in config/business.js; posts are shown when added here. */
+export const INSTAGRAM_POSTS = [];
