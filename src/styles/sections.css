@@ -90,17 +90,63 @@
 @media (max-width: 760px) {
   .header-floral { display: none; }
 }
+/* "Book Appointment" in full; on narrow screens it shortens to a compact "Book" so the
+   wordmark, booking, search and menu all fit on one row */
+.header-cta-short { display: none; }
+@media (max-width: 720px) {
+  .btn.header-cta { min-height: 40px; padding: 0 12px; gap: 8px; font-size: 10.5px; letter-spacing: 0.12em; }
+  .btn.header-cta svg { display: none; }
+  .header-cta-full { display: none; }
+  .header-cta-short { display: inline; }
+}
 @media (max-width: 600px) {
   :root { --header-top: 72px; --header-top-scrolled: 64px; }
-  .header-cta { display: none !important; }
-  .header-actions { gap: 6px; }
+  .header-row { gap: 8px; }
+  .header-actions { gap: 4px; }
+  .burger { width: 38px; }
   .icon-btn { width: 42px; height: 42px; }
   .brand-name { font-size: 19px; letter-spacing: 0.04em; }
   .brand-sub { font-size: 7px; letter-spacing: 0.24em; margin-top: 7px; }
 }
-@media (max-width: 350px) {
+@media (max-width: 374px) {
   .brand-name { font-size: 17px; }
-  .brand-sub { letter-spacing: 0.16em; }
+  .brand-sub { letter-spacing: 0.12em; }
+  .icon-btn { width: 38px; height: 38px; }
+  .btn.header-cta { padding: 0 8px; letter-spacing: 0.1em; }
+}
+/* smallest phones: no room for the header button; the booking bar and hero button remain */
+@media (max-width: 358px) {
+  .header-cta { display: none !important; }
+}
+
+/* ---------- mobile booking bar ----------
+   Phones and tablets only. Slides up once the hero is scrolled past, sits above the home
+   indicator (safe area), and steps aside while a menu/dialog is open or a form field has focus
+   (so it never covers the on-screen keyboard or the field being typed in). */
+.bookbar, .bookbar-space { display: none; }
+@media (max-width: 900px) {
+  .bookbar-space { display: block; height: calc(68px + env(safe-area-inset-bottom)); background: var(--paper); }
+  .bookbar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 45;
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px max(var(--gutter), env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(var(--gutter), env(safe-area-inset-left));
+    background: var(--paper-3); border-top: 1px solid rgba(184, 121, 50, 0.6);
+    box-shadow: 0 -14px 30px -22px rgba(53, 28, 27, 0.4);
+    transform: translateY(110%); visibility: hidden;
+    transition: transform 0.5s var(--ease), visibility 0s linear 0.5s;
+  }
+  .bookbar.is-shown { transform: none; visibility: visible; transition: transform 0.5s var(--ease); }
+  body.has-overlay .bookbar,
+  body:has(input:focus, textarea:focus, select:focus) .bookbar { transform: translateY(110%); visibility: hidden; transition: transform 0.3s var(--ease), visibility 0s linear 0.3s; }
+  .bookbar-btn { flex: 1; min-height: 48px; padding: 0 18px; }
+  .bookbar-wa {
+    flex: none; width: 48px; height: 48px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    border: 1px solid var(--decor); color: var(--accent); background: var(--paper);
+  }
+  .bookbar-wa:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+}
+@media (max-width: 900px) and (prefers-reduced-motion: reduce) {
+  .bookbar, .bookbar.is-shown { transition: none; }
 }
 
 /* ---------- site search ---------- */
@@ -177,6 +223,9 @@
 .hero-features li { display: flex; align-items: center; gap: 10px; padding-right: 16px; font-size: 10px; letter-spacing: 0.14em; line-height: 1.45; text-transform: uppercase; color: var(--caption); font-weight: 500; }
 .hero-features li + li { padding-left: 16px; border-left: 1px solid var(--line-soft); }
 .hero-features svg { flex: none; color: var(--decor); }
+/* studio area + city (config/business.js), shown once a city is set */
+.hero-place { display: flex; align-items: center; gap: 8px; margin: -12px 0 26px; font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--caption); font-weight: 500; }
+.hero-place svg { flex: none; color: var(--decor); }
 
 @media (prefers-reduced-motion: no-preference) {
   .hero-eyebrow { animation: rise 0.9s var(--ease) 0.15s both; }
@@ -285,6 +334,7 @@
 .svcx-name { font-family: var(--serif); font-weight: 400; font-size: clamp(30px, 2.7vw, 42px); line-height: 1; margin-top: 4px; }
 .svcx-cell--hair .svcx-name, .svcx-cell--academy .svcx-name { font-size: clamp(42px, 4.2vw, 66px); }
 .svcx-kick { margin-top: 10px; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255, 247, 242, 0.86); }
+.svcx-price { margin-top: 8px; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--champagne); font-weight: 500; }
 .svcx-go {
   position: absolute; z-index: 2; right: clamp(16px, 1.8vw, 26px); bottom: clamp(16px, 1.8vw, 26px);
   width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
@@ -508,6 +558,18 @@
 .tq blockquote { font-family: var(--serif); font-style: italic; font-weight: 300; font-size: 24px; line-height: 1.4; }
 .tq figcaption { font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
 .tq figcaption b { color: var(--accent); font-weight: 400; }
+.tq-source { display: block; margin-top: 6px; font-size: 10.5px; letter-spacing: 0.18em; }
+
+/* ---------- instagram strip (home, only when an Instagram link is set) ---------- */
+.igs-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 24px 40px; }
+.igs-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; margin-top: clamp(36px, 4vw, 56px); }
+.igs-tile { position: relative; display: block; aspect-ratio: 1 / 1; overflow: hidden; background: var(--paper-4); }
+.igs-tile .img { position: absolute; inset: 0; }
+.igs-tile .img img { transition: opacity 1s var(--ease), transform 1.4s var(--ease); }
+.igs-tile:hover .img img, .igs-tile:focus-visible .img img { transform: scale(1.05); }
+.igs-icon { position: absolute; right: 10px; bottom: 10px; color: var(--ivory); filter: drop-shadow(0 1px 6px rgba(53, 28, 27, 0.5)); }
+@media (max-width: 900px) { .igs-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .igs-follow, .igs-follow .btn { width: 100%; } }
 
 /* ---------- booking ---------- */
 .booking-grid { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); gap: clamp(48px, 7vw, 104px); align-items: start; }

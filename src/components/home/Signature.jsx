@@ -32,6 +32,9 @@ function StudioLink() {
   );
 }
 
+// Claims the studio has not confirmed yet (`confirmed: false`) are left out.
+const FEATURES = EXPERIENCE_FEATURES.filter((f) => f.confirmed !== false);
+
 /* The signature experience: a full-bleed portrait meeting an editorial text panel. */
 export default function Signature() {
   const media = useRef(null);
@@ -58,7 +61,7 @@ export default function Signature() {
           </p>
         </Reveal>
         <ul className="xp-features">
-          {EXPERIENCE_FEATURES.map((f, i) => (
+          {FEATURES.map((f, i) => (
             <Reveal as="li" key={f.title} delay={200 + i * 90}>
               <Icon name={f.icon} size={26} stroke={1} className="xp-icon" />
               <b>{f.title}</b>

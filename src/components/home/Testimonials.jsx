@@ -1,13 +1,14 @@
-import { TESTIMONIALS } from '../../data/content.js';
+import { VERIFIED_TESTIMONIALS as REVIEWS } from '../../data/content.js';
 import { hasWhatsApp, waLink } from '../../config/business.js';
 import Reveal from '../ui/Reveal.jsx';
 import Leaf from '../ui/Leaf.jsx';
 import SectionTitle from '../ui/SectionTitle.jsx';
 
-/* Shows genuine testimonials from data/content.js. Until any are added,
-   it shows an invitation to share feedback — nothing is invented. */
+/* Shows genuine testimonials from data/content.js (only those marked `permission: true`).
+   Until any qualify, it shows an invitation to share feedback — nothing is invented.
+   The home page renders this section only once there is at least one review. */
 export default function Testimonials() {
-  const hasReviews = TESTIMONIALS.length > 0;
+  const hasReviews = REVIEWS.length > 0;
 
   return (
     <section className="section testimonials" id="stories" aria-labelledby="stories-title">
@@ -16,10 +17,13 @@ export default function Testimonials() {
           <>
             <SectionTitle eyebrow="Client stories" lines={['In their', '*own words.*']} id="stories-title" />
             <div className="tq-grid">
-              {TESTIMONIALS.map((t, i) => (
+              {REVIEWS.map((t, i) => (
                 <Reveal as="figure" className="tq" key={i} delay={i * 100}>
                   <blockquote>“{t.quote}”</blockquote>
-                  <figcaption><b>{t.name}</b>{t.service && <span> · {t.service}</span>}</figcaption>
+                  <figcaption>
+                    <b>{t.name}</b>{t.service && <span> · {t.service}</span>}
+                    {t.source && <span className="tq-source">{t.source}</span>}
+                  </figcaption>
                 </Reveal>
               ))}
             </div>

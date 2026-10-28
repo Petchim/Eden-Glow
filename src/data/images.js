@@ -11,6 +11,8 @@
    If any image fails to load, the site shows a branded panel instead.
    ===================================================================== */
 
+import { HOME_WEBP_WIDTHS } from './imageWidths.js';
+
 // Unsplash: u('1560066984-138dadb4c035', 1200)   Pexels: p(3985324, 1200)
 const u = (id, w = 1200) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=78`;
 const p = (id, w = 1200) => `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=${w}`;
@@ -20,18 +22,28 @@ const p = (id, w = 1200) => `https://images.pexels.com/photos/${id}/pexels-photo
    Pexels under their free licences) so the home page never depends on
    a third-party image host. */
 const home = (file) => `/images/home/${file}`;
+/* `{ src, srcSet }` for a home photo: the JPEG stays the fallback, `srcSet` lists the WebP
+   copies made by scripts/optimize-images.py so the browser picks the size it needs. */
+const local = (file) => {
+  const widths = HOME_WEBP_WIDTHS[file];
+  const stem = file.replace(/\.\w+$/, '');
+  return {
+    src: home(file),
+    srcSet: widths?.map((w) => `/images/home/webp/${stem}-${w}.webp ${w}w`).join(', '),
+  };
+};
 
 export const HOME_IMAGES = {
   // Optimised JPEG copy of 'Beauty in Bloom.png' (same image, ~270 KB instead of 2.4 MB).
   // `artInImage`: the photo already carries the "Beauty is a feeling" script and blossoms,
   // so the hero skips its own overlay phrase and line-art florals.
   hero: {
-    src: home('hero-beauty-in-bloom.jpg'),
+    ...local('hero-beauty-in-bloom.jpg'),
     alt: 'Woman with long, tousled brunette hair and a burgundy satin wrap, eyes closed, framed by pink blossom branches',
     position: '100% 30%',
     artInImage: true,
   },
-  signature: { src: home('signature-portrait.jpg'), alt: 'Smiling woman with long dark hair and a white flower tucked behind her ear', position: '50% 35%' },
+  signature: { ...local('signature-portrait.jpg'), alt: 'Smiling woman with long dark hair and a white flower tucked behind her ear', position: '50% 35%' },
   booking: { src: home('cta-salon.jpg'), alt: 'Stylist shaping soft curls with a curling tong', position: '50% 35%' },
   // used by the About / AcademyTeaser sections (not currently on the home page)
   about: { src: u('1633681926035-ec1ac984418a', 1100), alt: 'Elegant salon interior with round mirrors and styling chairs' },
@@ -40,16 +52,16 @@ export const HOME_IMAGES = {
 
 /* ---------- Service cards (home page + footer) ---------- */
 export const CARD_IMAGES = {
-  hair: { src: home('service-hair.jpg'), alt: 'Long, glossy curls styled into a half-up look in the salon', position: '50% 40%' },
-  skin: { src: home('service-skin.jpg'), alt: 'Face serum being applied with a dropper to glowing, natural skin', position: '50% 35%' },
-  nails: { src: home('service-nails.jpg'), alt: 'Manicured hands finished with classic red polish', position: '50% 45%' },
-  lashes: { src: home('service-lashes.jpg'), alt: 'Lash stylist placing individual lash extensions with fine tweezers', position: '50% 55%' },
-  makeup: { src: home('service-makeup.jpg'), alt: 'Lipstick being applied to finish a soft, glamorous makeup look', position: '35% 40%' },
-  academy: { src: home('service-academy.jpg'), alt: 'Stylist working on a client’s curly hair in a bright salon', position: '58% 40%' },
+  hair: { ...local('service-hair.jpg'), alt: 'Long, glossy curls styled into a half-up look in the salon', position: '50% 40%' },
+  skin: { ...local('service-skin.jpg'), alt: 'Face serum being applied with a dropper to glowing, natural skin', position: '50% 35%' },
+  nails: { ...local('service-nails.jpg'), alt: 'Manicured hands finished with classic red polish', position: '50% 45%' },
+  lashes: { ...local('service-lashes.jpg'), alt: 'Lash stylist placing individual lash extensions with fine tweezers', position: '50% 55%' },
+  makeup: { ...local('service-makeup.jpg'), alt: 'Lipstick being applied to finish a soft, glamorous makeup look', position: '35% 40%' },
+  academy: { ...local('service-academy.jpg'), alt: 'Stylist working on a client’s curly hair in a bright salon', position: '58% 40%' },
 };
 
 /* ---------- Home gallery (editorial grid, opens in the lightbox) ---------- */
-const hg = (file, cat, caption, position) => ({ cat, caption, src: home(file), full: home(file), position });
+const hg = (file, cat, caption, position) => ({ cat, caption, ...local(file), full: home(file), position });
 export const HOME_GALLERY = [
   hg('gallery-red-lip.jpg', 'Makeup', 'Evening red', '50% 35%'),
   hg('gallery-curling.jpg', 'Hair', 'Curls, set by hand', '50% 40%'),

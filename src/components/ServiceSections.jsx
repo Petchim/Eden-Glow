@@ -55,6 +55,7 @@ export function Offerings({ data, id, booking, confirmed }) {
                   <span className="o-num">{num(i)}</span>
                   <h3 className="o-title">{it.title}</h3>
                   <p className="o-text">{it.text}</p>
+                  {it.price && <p className="o-price">{it.price}</p>}
                   {it.includes && (
                     <ul className="o-list">{it.includes.map((x) => <li key={x}>{x}</li>)}</ul>
                   )}
@@ -74,6 +75,7 @@ export function Offerings({ data, id, booking, confirmed }) {
                   <span className="o-num">{num(i)}</span>
                   <h3 className="o-title">{it.title}</h3>
                   <p className="o-text">{it.text}</p>
+                  {it.price && <p className="o-price">{it.price}</p>}
                   <span className="tlink"><span>Enquire</span><Icon name="arrow" /></span>
                 </Link>
               </Reveal>
@@ -91,6 +93,7 @@ export function Offerings({ data, id, booking, confirmed }) {
                     <span className="oindex-body">
                       <span className="o-title">{it.title}</span>
                       <span className="o-text">{it.text}</span>
+                      {it.price && <span className="o-price">{it.price}</span>}
                     </span>
                     <Icon name="arrow" />
                   </Link>

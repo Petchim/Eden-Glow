@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Header from '../Header.jsx';
 import Footer from '../Footer.jsx';
+import MobileBookBar from '../MobileBookBar.jsx';
 
 /* Shared shell for every route: header, page area with a soft entrance, footer. */
 export default function Layout() {
@@ -33,6 +34,7 @@ export default function Layout() {
         </div>
       </main>
       <Footer />
+      <MobileBookBar />
     </>
   );
 }

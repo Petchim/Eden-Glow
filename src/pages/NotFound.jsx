@@ -5,7 +5,7 @@ import Button from '../components/ui/Button.jsx';
 import Leaf from '../components/ui/Leaf.jsx';
 
 export default function NotFound() {
-  usePageMeta('Page Not Found', 'The page you were looking for could not be found.');
+  usePageMeta('Page Not Found', 'The page you were looking for could not be found.', { noindex: true });
 
   return (
     <section className="section nf" aria-labelledby="page-title">

@@ -12,14 +12,22 @@ export function useScrolled(offset = 24) {
   return scrolled;
 }
 
+/* How many dialogs/menus are open; while any are, <body> carries `has-overlay`
+   (the mobile booking bar uses it to step out of the way and out of the tab order). */
+let overlays = 0;
+
 /** Prevents background scrolling while a dialog/menu is open. */
 export function useBodyLock(locked) {
   useEffect(() => {
     if (!locked) return undefined;
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+    overlays += 1;
+    document.body.classList.add('has-overlay');
     return () => {
       document.body.style.overflow = prev;
+      overlays -= 1;
+      if (!overlays) document.body.classList.remove('has-overlay');
     };
   }, [locked]);
 }

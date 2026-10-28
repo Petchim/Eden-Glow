@@ -33,7 +33,7 @@ export default function SearchDialog({ onClose }) {
     else if (e.key === 'Enter' && e.target === inputRef.current && results[active]) { e.preventDefault(); navigate(results[active].to); onClose(); }
     else if (e.key === 'Tab') {
       // keep focus inside the dialog
-      const f = dialogRef.current.querySelectorAll('input, button, a[href]');
+      const f = dialogRef.current.querySelectorAll('input, button, a[href]:not([tabindex="-1"])');
       const first = f[0];
       const last = f[f.length - 1];
       if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }

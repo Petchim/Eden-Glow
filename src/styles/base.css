@@ -135,6 +135,10 @@ main:focus { outline: none; }
 
 /* ---------- layout ---------- */
 .wrap { width: 100%; max-width: var(--wrap); margin: 0 auto; padding-inline: var(--gutter); }
+/* keep content clear of a phone's notch in landscape (viewport-fit=cover) */
+@supports (padding: max(0px)) {
+  .wrap { padding-left: max(var(--gutter), env(safe-area-inset-left)); padding-right: max(var(--gutter), env(safe-area-inset-right)); }
+}
 .section { padding-block: var(--section); position: relative; }
 .section--alt { background: var(--paper-2); }
 
@@ -204,6 +208,7 @@ main:focus { outline: none; }
   transition: opacity 1s var(--ease), transform 1.6s var(--ease);
 }
 .img.is-loaded img { opacity: 1; }
+.img picture { display: contents; }
 .img--fallback {
   display: flex; align-items: flex-end; justify-content: center; color: var(--accent);
   background:
