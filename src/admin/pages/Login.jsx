@@ -5,7 +5,8 @@ import AdminLogo from '../components/AdminLogo.jsx';
 import Img from '../../components/ui/Img.jsx';
 import { HOME_IMAGES } from '../../data/images.js';
 import { useAuth } from '../auth.jsx';
-import { DEMO_LOGIN } from '../api/index.js';
+import { api, DEMO_LOGIN, USING_MOCK } from '../api/index.js';
+import { firebaseConfigured, missingFirebaseConfig } from '../../lib/firebase.js';
 import { useAdminTitle } from '../hooks.js';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -36,6 +37,22 @@ export default function Login() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [forgot, setForgot] = useState(false);
+  const [reset, setReset] = useState({ busy: false, msg: '' });
+  const notConnected = !USING_MOCK && !firebaseConfigured();
+
+  const sendReset = async () => {
+    if (!EMAIL_RE.test(form.email.trim())) {
+      setErrors({ email: 'Enter your email address first.' });
+      return;
+    }
+    setReset({ busy: true, msg: '' });
+    try {
+      await api.auth.resetPassword(form.email.trim());
+      setReset({ busy: false, msg: 'If this email belongs to the admin account, a password reset link is on its way. Check your inbox.' });
+    } catch (err) {
+      setReset({ busy: false, msg: err.message || 'Could not send the reset email. Please try again.' });
+    }
+  };
 
   if (admin) return <Navigate to={loc.state?.from || '/admin/dashboard'} replace />;
 
@@ -82,6 +99,15 @@ export default function Login() {
         <form className="ad-login-card" onSubmit={submit} noValidate>
           <h1>Sign in to your account</h1>
           <p className="ad-login-lede">Manage appointments, billing, customers and more.</p>
+
+          {notConnected && (
+            <div className="ad-alert ad-alert--error" role="alert">
+              <AIcon name="info" size={18} />
+              <span>
+                The admin is not connected to Firebase yet. Add <code>{missingFirebaseConfig().join(', ')}</code> to <code>.env.local</code> (see <code>.env.example</code>) and restart.
+              </span>
+            </div>
+          )}
 
           {error && (
             <div className="ad-alert ad-alert--error" role="alert">
@@ -151,12 +177,22 @@ export default function Login() {
             </button>
           </div>
           {forgot && (
-            <p className="ad-login-help" role="status">
-              Password reset will be available once the studio’s secure server is connected. Until then, the studio owner can reset access from the server setup.
-            </p>
+            <div className="ad-login-help" role="status">
+              {USING_MOCK ? (
+                'Password reset is not available in demo mode.'
+              ) : (
+                <>
+                  Enter the admin email above and we’ll send a link to choose a new password.{' '}
+                  <button type="button" className="ad-link" onClick={sendReset} disabled={reset.busy}>
+                    {reset.busy ? 'Sending…' : 'Send reset link'}
+                  </button>
+                  {reset.msg && <span className="ad-block ad-mt-s">{reset.msg}</span>}
+                </>
+              )}
+            </div>
           )}
 
-          <button type="submit" className="ad-btn ad-btn--primary ad-btn--block ad-login-submit" disabled={busy}>
+          <button type="submit" className="ad-btn ad-btn--primary ad-btn--block ad-login-submit" disabled={busy || notConnected}>
             {busy ? 'Signing in…' : 'Sign In'}
             {!busy && <AIcon name="arrow" size={18} />}
           </button>

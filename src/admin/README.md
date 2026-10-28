@@ -1,41 +1,77 @@
 # Eden Glow admin panel
 
 The owner's admin panel lives at `/admin` (sign in at `/admin/login`). It is loaded as its
-own chunk, so public visitors never download it, and `robots.txt` plus a `noindex` tag keep
-it out of search results.
+own chunk, so public visitors never download it (or the Firebase SDK), and `robots.txt` plus a
+`noindex` tag keep it out of search results.
 
-## Frontend only, for now
+## How it is connected
 
-There is no backend yet. Every screen talks to **one module**, `src/admin/api/index.js`,
-which today hands each call to the in-browser mock in `src/admin/mock/`:
-
-| Folder | What it is |
+| File | What it is |
 | --- | --- |
-| `src/admin/mock/seed.js` | All demo data (customers, appointments, invoices, payments, expenses, services, demo sign-in) |
-| `src/admin/mock/mockApi.js` | A fake server: validates input, recomputes totals, numbers invoices, blocks double submits, builds reports. Data is kept in this browser's `localStorage`. |
-| `src/admin/api/index.js` | The API contract the screens use, and the single switch between mock and real backend |
+| `src/lib/firebase.js` | The one Firebase setup: reads `VITE_FIREBASE_*` from `.env.local`, optional emulators |
+| `src/admin/api/index.js` | The API contract the screens use; picks Firebase (default) or the demo mock |
+| `src/admin/api/firestoreApi.js` | Firebase backend: Auth sign-in, Firestore reads/writes, transactions |
+| `src/admin/api/engine.js` | Shared rules: validation, invoice building, dashboard/report views |
+| `firestore.rules` | Who may read/write what. **This is the real protection.** |
+| `src/admin/mock/` | Demo data, used only with `VITE_ADMIN_DEMO=true` (browser-only, not secure) |
+| `src/lib/publicServices.js` | Helper to read published services on public pages (not used by them yet) |
 
-The demo sign-in (`admin@edenglow.demo` / `EdenGlow@demo`) is checked in the browser and
-**protects nothing**. The header shows a "Demo data" badge while the mock is in use, and
-Settings → Demo Data can reset the sample records.
+### Firestore data
 
-## Connecting the real backend
+| Collection | Contents | Who can read / write |
+| --- | --- | --- |
+| `admins/{uid}` | `{ name, email }` for the owner's Firebase Auth account | Created by hand in the Console. Nobody can write it from the site |
+| `services` | `name, category, price, durationMin, image, active, published` | Public may read `published: true` only; owner writes; no deletes |
+| `customers` | `name, phone, email, area, notes, status, createdAt` | Owner only; no deletes (mark inactive) |
+| `appointments` | `customerId, serviceIds, date, time, staff, status, notes, invoiceId` | Owner only; no deletes (cancel) |
+| `invoices` | Bill lines with the price billed, totals, `number`, `status: draft/issued`, `paid/balance` | Owner only; issued invoices can only take payments and notes; only drafts can be deleted |
+| `payments` | `invoiceId, amount, method, reference, at` | Owner only; append-only, and must raise the invoice's paid total by exactly its amount |
+| `expenses` | `date, category, description, amount, method` | Owner only |
+| `settings/studio` | Tax, staff names, invoice footer | Owner only |
+| `counters/invoices-YYYY` | Last invoice number used that year | Owner only; can only go up |
+| `requestKeys/{key}` | Stops a double click creating two invoices | Owner only; create-once |
 
-1. Write an HTTP client with the same functions listed at the top of `api/index.js`
-   (send requests with `credentials: 'include'` so the session cookie travels).
-2. Point `export const api` at it, and set `USING_MOCK = false` and `DEMO_LOGIN = null`.
-3. Delete `src/admin/mock/`.
+Dates are local `YYYY-MM-DD` strings; payment times are ISO strings; amounts are rupees.
 
-Rules the server must own (the mock already behaves this way, so the screens expect it):
+Rules the backend keeps (and the rules file double-checks where it can):
 
-- Authentication: one owner account, hashed password, secure HTTP-only session cookie
-  with expiry, logout, and sign-in rate limiting. A `401` response sends the screen back to login.
-- Billing: prices come from the service list, never from the browser; totals, discounts and
-  tax are recomputed on the server; invoice numbers are assigned on generate; invoice +
-  first payment are saved in one transaction; an `idempotencyKey` stops duplicate invoices
-  and payments; saved invoices keep the price they were billed at; an invoice is "paid"
-  only when the full amount has been received.
-- Errors come back as `{ status, message, fields? }` so forms can highlight fields.
+- Prices on a bill come from the service list, never from the page. Saved invoices keep the
+  price they were billed at, so changing a service price only affects new bills.
+- A service without a price or duration stays hidden: it can't be billed or published.
+- Invoice number + invoice + first payment are written in one transaction; later payments
+  are a transaction too. Money above the balance is change, not kept.
+- After sign-in, the admin keeps the collections in sync in memory (no on-device cache, so
+  customer details don't stay on a shared computer). Fine for one studio's records; if the
+  data grows to tens of thousands of documents, move the heavier reports to queries.
+
+## First-time setup (Firebase Console)
+
+1. **Web config:** copy `.env.example` to `.env.local` and paste the values from
+   Project settings → General → Your apps. `.env.local` is ignored by Git.
+2. **Authentication:** Build → Authentication → Sign-in method → enable **Email/Password**.
+   Users → **Add user** with the owner's email and a strong password. Copy the new **User UID**.
+3. **Owner record:** Firestore → Start collection `admins` → Document ID = that User UID →
+   fields `name` (string, e.g. the owner's name) and `email` (string).
+4. **Rules:** publish `firestore.rules` (Firestore → Rules, paste and Publish, or
+   `npx firebase deploy --only firestore:rules`). Until this is done the database keeps
+   whatever rules it was created with.
+5. **Authorized domains:** Authentication → Settings → Authorized domains → add the live site's domain.
+6. **Hosting env:** add the same `VITE_FIREBASE_*` variables in the host's settings (e.g. Vercel →
+   Project → Settings → Environment Variables) and redeploy.
+7. Sign in at `/admin/login`, open **Services**, and either add services or use
+   **Import the website's treatment list** (names only; set each price and duration, then mark it Active).
+
+Recommended later: enable **App Check** for Firestore, and set a budget alert in Google Cloud.
+
+## Local development and tests
+
+- `npm run emulators` runs the Auth + Firestore emulators with `firestore.rules`. Set
+  `VITE_FIREBASE_USE_EMULATORS=true` in `.env.local` to point the admin at them.
+- `npm test` starts the emulators, then runs the engine tests, the security-rules tests
+  (`tests/rules.test.js`) and an end-to-end test of every admin data operation
+  (`tests/firestoreApi.test.js`). Needs Java 11+.
+- `VITE_ADMIN_DEMO=true` runs the screens on the in-browser demo data with no Firebase at all.
+  The demo sign-in (`admin@edenglow.demo` / `EdenGlow@demo`) protects nothing; never use it in production.
 
 ## Where things are
 
@@ -43,7 +79,7 @@ Rules the server must own (the mock already behaves this way, so the screens exp
   Customers, Appointments, Services, Expenses, Reports, Settings)
 - `components/` admin layout, sidebar, form controls, cards, modals
 - `charts/Charts.jsx` small SVG charts (no chart library)
-- `lib/` money/date formatting, bill arithmetic, invoice PDF (jsPDF, loaded on demand)
+- `lib/` money/date formatting, bill arithmetic, invoice PDF (jsPDF, loaded on demand), website menu import
 - `admin.css` all admin styles, prefixed `ad-`
 
 Studio address, phone and email on invoices come from `src/config/business.js`; anything left

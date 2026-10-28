@@ -6,8 +6,9 @@
    before the backend exists. Names are invented, phone numbers use a
    dummy 90000 range and emails use the reserved example.com domain.
 
-   When the real backend is ready, delete the whole src/admin/mock/
-   folder and point src/admin/api/index.js at the HTTP client.
+   Used only when VITE_ADMIN_DEMO=true; the real admin runs on Firebase
+   and never writes any of this to Firestore. The prices below are made
+   up for the demo and must not be copied into the real service list.
    ===================================================================== */
 import { CARD_IMAGES, HAIR_IMAGES, SKIN_IMAGES, NAILS_IMAGES, LASH_IMAGES, MAKEUP_IMAGES } from '../../data/images.js';
 import { addDays, today } from '../lib/format.js';
