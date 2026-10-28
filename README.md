@@ -1,6 +1,7 @@
 # Eden Glow Studio — website
 
-React + Vite + React Router, plain CSS, no backend. Look Good. Feel Good. Be You.
+React + Vite + React Router, plain CSS. The owner's admin panel (`/admin`) uses Firebase
+(Authentication + Cloud Firestore); the public site has no backend. Look Good. Feel Good. Be You.
 
 ## Run it
 
@@ -9,7 +10,11 @@ npm install
 npm run dev      # local preview at http://localhost:5173
 npm run build    # production build in /dist (upload this folder to your host)
 npm run preview  # test the production build locally
+npm test         # admin data rules + Firestore security rules, on the local Firebase emulators (needs Java)
 ```
+
+For the admin panel, copy `.env.example` to `.env.local` and fill in the Firebase web config.
+Setup steps are in [`src/admin/README.md`](src/admin/README.md).
 
 ## Pages
 
@@ -42,7 +47,7 @@ Put images in `public/images/` and set e.g. `src: '/images/hair-hero.jpg'` in `s
 gold-leaf panel instead of a broken image.
 
 ### Enquiries (booking, contact, academy)
-There is no backend or database. Forms are validated in the browser and then:
+The public forms have no backend or database. They are validated in the browser and then:
 1. open WhatsApp with a ready-written message, if `whatsappNumber` is set; otherwise
 2. open the visitor's email app, if `email` is set; otherwise
 3. show the prepared message with a Copy button.

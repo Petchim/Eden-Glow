@@ -100,7 +100,7 @@ export default function Settings() {
 
           <Card title="Admin Account" icon="shield">
             <p className="ad-muted">
-              There is one owner login and no staff accounts. {USING_MOCK ? 'Right now the panel runs without a server, so the sign-in is a demo only and offers no real protection. Password changes, secure sessions and sign-in limits will be handled by the backend once it is connected.' : 'Password changes are handled by the server.'}
+              There is one owner login and no staff accounts. {USING_MOCK ? 'Right now the panel runs without a server, so the sign-in is a demo only and offers no real protection. Password changes, secure sessions and sign-in limits will be handled by the backend once it is connected.' : 'Sign-in is handled by Firebase Authentication, and only the account listed in the admins collection can open this panel or change records. To change the password, sign out and use “Forgot password?” on the sign-in screen.'}
             </p>
           </Card>
 

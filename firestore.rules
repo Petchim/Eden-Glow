@@ -1,0 +1,231 @@
+rules_version = '2';
+
+// Eden Glow Studio — Cloud Firestore security rules.
+//
+// Who can do what:
+//   • Public visitors: read services marked `published: true`. Nothing else.
+//   • The salon owner: signed in with Firebase Authentication AND listed at
+//     admins/{uid} (that document is created by hand in the Firebase Console;
+//     no one can create it from the website). Only the owner can read or change
+//     customers, appointments, invoices, payments, expenses and settings.
+//   • Anything not matched below is denied.
+//
+// Records that matter for the books are protected from accidental loss:
+// services, customers and appointments can't be deleted (hide or cancel them
+// instead), issued invoices can only receive payments and notes, payments can
+// never be changed or removed, and invoice numbers only move forward.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- helpers ----------
+    function signedIn() {
+      return request.auth != null;
+    }
+    function isAdmin() {
+      return signedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    function isNum(v) {
+      return v is int || v is float;
+    }
+    function isMoney(v) {
+      return isNum(v) && v >= 0 && v <= 10000000;
+    }
+    function isStr(v, max) {
+      return v is string && v.size() <= max;
+    }
+    function isDate(v) {
+      return v is string && v.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$');
+    }
+    function stampOk(d) {
+      return !('updatedAt' in d) || d.updatedAt == request.time;
+    }
+    function invoicePath(id) {
+      return /databases/$(database)/documents/invoices/$(id);
+    }
+
+    // ---------- owner account ----------
+    match /admins/{uid} {
+      // Lets the signed-in user check whether they are the owner. Managed only in the Console.
+      allow get: if signedIn() && request.auth.uid == uid;
+      allow list, write: if false;
+    }
+
+    // ---------- services (the only public data) ----------
+    match /services/{id} {
+      allow read: if resource.data.published == true || isAdmin();
+      allow create, update: if isAdmin() && validService(request.resource.data);
+      allow delete: if false; // hide a service instead, so old bills keep their history
+
+      function validService(d) {
+        return d.keys().hasOnly(['name', 'category', 'price', 'durationMin', 'image', 'active', 'published', 'updatedAt'])
+          && d.name is string && d.name.size() >= 2 && d.name.size() <= 80
+          && isStr(d.category, 40)
+          && (d.price == null || (isNum(d.price) && d.price > 0 && d.price <= 500000))
+          && (d.durationMin == null || (d.durationMin is int && d.durationMin >= 5 && d.durationMin <= 600))
+          && isStr(d.image, 500)
+          && d.active is bool && d.published is bool
+          // nothing is billed or shown publicly without a real price
+          && (!d.published || d.price != null)
+          && (!d.active || (d.price != null && d.durationMin != null))
+          && stampOk(d);
+      }
+    }
+
+    // ---------- customers ----------
+    match /customers/{id} {
+      allow read: if isAdmin();
+      allow create, update: if isAdmin() && validCustomer(request.resource.data);
+      allow delete: if false; // mark inactive instead
+
+      function validCustomer(d) {
+        return d.keys().hasOnly(['name', 'phone', 'email', 'area', 'notes', 'status', 'createdAt', 'updatedAt'])
+          && d.name is string && d.name.size() >= 2 && d.name.size() <= 80
+          && d.phone is string && d.phone.size() >= 8 && d.phone.size() <= 20
+          && isStr(d.email, 120) && isStr(d.area, 80) && isStr(d.notes, 1000)
+          && d.status in ['active', 'inactive']
+          && isDate(d.createdAt)
+          && stampOk(d);
+      }
+    }
+
+    // ---------- appointments ----------
+    match /appointments/{id} {
+      allow read: if isAdmin();
+      allow create, update: if isAdmin() && validAppointment(request.resource.data);
+      allow delete: if false; // cancel instead
+
+      function validAppointment(d) {
+        return d.keys().hasOnly(['customerId', 'serviceIds', 'date', 'time', 'staff', 'status', 'notes', 'invoiceId', 'createdAt', 'updatedAt'])
+          && d.customerId is string
+          && d.serviceIds is list && d.serviceIds.size() >= 1 && d.serviceIds.size() <= 20
+          && isDate(d.date)
+          && d.time is string && d.time.matches('^[0-9]{2}:[0-9]{2}$')
+          && isStr(d.staff, 60) && isStr(d.notes, 500)
+          && d.status in ['upcoming', 'in_progress', 'completed', 'cancelled', 'no_show']
+          && (d.invoiceId == null || d.invoiceId is string)
+          && d.createdAt is string
+          && stampOk(d);
+      }
+    }
+
+    // ---------- invoices ----------
+    match /invoices/{id} {
+      allow read: if isAdmin();
+      allow create: if isAdmin() && validInvoice(request.resource.data);
+      allow update: if isAdmin() && validInvoice(request.resource.data) && (
+        // a draft can be edited or generated
+        resource.data.status == 'draft'
+        // a generated invoice only takes payments and the internal note
+        || (resource.data.status == 'issued'
+            && request.resource.data.status == 'issued'
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['paid', 'balance', 'paymentStatus', 'internalNote', 'updatedAt'])
+            && request.resource.data.paid >= resource.data.paid)
+      );
+      allow delete: if isAdmin() && resource.data.status == 'draft';
+
+      function validInvoice(d) {
+        return d.keys().hasOnly([
+            'date', 'customerId', 'walkIn', 'appointmentId', 'staff', 'items', 'billDiscount', 'discountReason', 'notes',
+            'taxRate', 'taxLabel', 'subtotal', 'discount', 'tax', 'total', 'status', 'number', 'issuedAt', 'createdAt',
+            'internalNote', 'paid', 'balance', 'paymentStatus', 'draftPayment', 'updatedAt'])
+          && d.status in ['draft', 'issued']
+          && isDate(d.date)
+          && d.items is list && d.items.size() <= 50
+          && (d.status == 'draft' || d.items.size() >= 1)
+          && isMoney(d.subtotal) && isMoney(d.discount) && isMoney(d.tax) && isMoney(d.total)
+          && isMoney(d.billDiscount) && isNum(d.taxRate) && d.taxRate >= 0 && d.taxRate <= 28
+          && isMoney(d.paid) && isMoney(d.balance) && d.paid <= d.total + 0.01
+          && d.paymentStatus in ['paid', 'partial', 'unpaid']
+          && (d.status == 'draft'
+              ? d.number == null
+              : (d.number is string && d.number.matches('^INV-[0-9]{4}-[0-9]{4,}$') && !('draftPayment' in d)))
+          && (d.customerId == null || d.customerId is string)
+          && isStr(d.discountReason, 200) && isStr(d.notes, 500) && isStr(d.internalNote, 1000)
+          && d.createdAt is string
+          && stampOk(d);
+      }
+    }
+
+    // ---------- payments: append-only ----------
+    match /payments/{id} {
+      allow read: if isAdmin();
+      allow create: if isAdmin() && validPayment(request.resource.data);
+      allow update, delete: if false;
+
+      function paidBefore(invId) {
+        return exists(invoicePath(invId)) && get(invoicePath(invId)).data.status == 'issued'
+          ? get(invoicePath(invId)).data.paid
+          : 0;
+      }
+      function validPayment(d) {
+        return d.keys().hasOnly(['invoiceId', 'amount', 'method', 'reference', 'at', 'createdAt'])
+          && d.invoiceId is string
+          && isMoney(d.amount) && d.amount > 0
+          && d.method in ['cash', 'upi', 'card', 'other']
+          && isStr(d.reference, 60)
+          && d.at is string
+          && d.createdAt == request.time
+          // saved together with the invoice, whose paid total must go up by exactly this amount
+          && getAfter(invoicePath(d.invoiceId)).data.status == 'issued'
+          && math.abs(getAfter(invoicePath(d.invoiceId)).data.paid - (paidBefore(d.invoiceId) + d.amount)) < 0.01;
+      }
+    }
+
+    // ---------- expenses ----------
+    match /expenses/{id} {
+      allow read, delete: if isAdmin();
+      allow create, update: if isAdmin() && validExpense(request.resource.data);
+
+      function validExpense(d) {
+        return d.keys().hasOnly(['date', 'category', 'description', 'amount', 'method', 'updatedAt'])
+          && isDate(d.date)
+          && isStr(d.category, 40)
+          && d.description is string && d.description.size() >= 2 && d.description.size() <= 120
+          && isMoney(d.amount) && d.amount > 0
+          && d.method in ['cash', 'upi', 'card', 'other']
+          && stampOk(d);
+      }
+    }
+
+    // ---------- settings ----------
+    match /settings/{name} {
+      allow read: if isAdmin();
+      allow create, update: if isAdmin() && name == 'studio' && validSettings(request.resource.data);
+      allow delete: if false;
+
+      function validSettings(d) {
+        return d.keys().hasOnly(['taxEnabled', 'taxRate', 'taxLabel', 'staff', 'invoiceFooter', 'serviceCategories', 'expenseCategories', 'updatedAt'])
+          && d.taxEnabled is bool
+          && isNum(d.taxRate) && d.taxRate >= 0 && d.taxRate <= 28
+          && isStr(d.taxLabel, 20)
+          && d.staff is list && d.staff.size() <= 50
+          && isStr(d.invoiceFooter, 300)
+          && (!('serviceCategories' in d) || d.serviceCategories is list)
+          && (!('expenseCategories' in d) || d.expenseCategories is list)
+          && stampOk(d);
+      }
+    }
+
+    // ---------- invoice number counters: only ever move forward ----------
+    match /counters/{name} {
+      allow read: if isAdmin();
+      allow create: if isAdmin() && validCounter(request.resource.data) && request.resource.data.last >= 1;
+      allow update: if isAdmin() && validCounter(request.resource.data) && request.resource.data.last > resource.data.last;
+      allow delete: if false;
+
+      function validCounter(d) {
+        return d.keys().hasOnly(['last', 'updatedAt']) && d.last is int && stampOk(d);
+      }
+    }
+
+    // ---------- one-time keys that stop a double submit creating two invoices ----------
+    match /requestKeys/{key} {
+      allow read: if isAdmin();
+      allow create: if isAdmin()
+        && request.resource.data.keys().hasOnly(['invoiceId', 'createdAt'])
+        && request.resource.data.invoiceId is string
+        && request.resource.data.createdAt == request.time;
+      allow update, delete: if false;
+    }
+  }
+}
