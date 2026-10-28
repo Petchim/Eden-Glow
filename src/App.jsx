@@ -14,12 +14,15 @@ const Gallery = lazy(() => import('./pages/Gallery.jsx'));
 const Contact = lazy(() => import('./pages/Contact.jsx'));
 const BookAppointment = lazy(() => import('./pages/BookAppointment.jsx'));
 const NotFound = lazy(() => import('./pages/NotFound.jsx'));
+// Owner's admin panel: its own chunk and layout, never loaded by public visitors.
+const AdminApp = lazy(() => import('./admin/AdminApp.jsx'));
 
 const page = (el) => <Suspense fallback={<div className="page-loading" aria-hidden="true" />}>{el}</Suspense>;
 
 export default function App() {
   return (
     <Routes>
+      <Route path="admin/*" element={page(<AdminApp />)} />
       <Route element={<Layout />}>
         <Route index element={<Home />} />
         <Route path="hair" element={page(<Hair />)} />

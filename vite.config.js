@@ -42,7 +42,7 @@ function siteHead() {
       return { html: out, tags };
     },
     generateBundle() {
-      const robots = ['User-agent: *', 'Allow: /'];
+      const robots = ['User-agent: *', 'Allow: /', 'Disallow: /admin'];
       if (siteUrl()) {
         robots.push('', `Sitemap: ${absoluteUrl('/sitemap.xml')}`);
         const urls = SITE_PATHS.map((p) => `  <url><loc>${absoluteUrl(p)}</loc></url>`).join('\n');
