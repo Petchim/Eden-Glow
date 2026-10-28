@@ -1,48 +1,45 @@
 import { Link } from 'react-router-dom';
-import { SERVICES, bookLink } from '../../data/content.js';
+import { SERVICES } from '../../data/content.js';
 import Img from '../ui/Img.jsx';
 import Reveal from '../ui/Reveal.jsx';
 import SectionTitle from '../ui/SectionTitle.jsx';
 import Icon from '../ui/Icon.jsx';
 
-function ServiceCard({ s, index }) {
-  const isAcademy = s.id === 'academy';
-  return (
-    <Reveal as="article" className={`svc svc--${s.layout}`} id={`svc-${s.id}`} delay={(index % 2) * 120} aria-labelledby={`svc-${s.id}-title`}>
-      <Link className="svc-media zoom-on-hover" to={s.to} tabIndex={-1} aria-hidden="true">
-        <Img {...s.image} sizes="(max-width: 760px) 92vw, 50vw" />
-      </Link>
-      <div className="svc-body">
-        <p className="svc-meta"><span className="svc-num">{String(index + 1).padStart(2, '0')}</span>{s.kicker}</p>
-        <h3 className="svc-title" id={`svc-${s.id}-title`}><Link to={s.to}>{s.title}</Link></h3>
-        <p className="svc-desc">{s.desc}</p>
-        <div className="svc-actions">
-          <Link className="tlink" to={s.to}><span>Explore {s.title.toLowerCase()}</span><Icon name="arrow" /></Link>
-          <Link className="btn btn--line btn--sm" to={bookLink(isAcademy ? 'Academy enquiry' : s.title)}>
-            {isAcademy ? 'Enquire' : 'Book'}<span className="visually-hidden"> {s.title}</span>
-          </Link>
-        </div>
-      </div>
-    </Reveal>
-  );
-}
+const SIZES = {
+  hair: '(max-width: 700px) 100vw, (max-width: 1000px) 60vw, 42vw',
+  academy: '(max-width: 700px) 100vw, 100vw',
+};
 
+/* Editorial service mosaic: one feature image, four supporting frames and a wide academy band.
+   Each tile is a single link to the service page. */
 export default function Services() {
   return (
-    <section className="section section--alt services" id="services" aria-labelledby="services-title">
+    <section className="section svcx" id="services" aria-labelledby="services-title">
       <div className="wrap">
-        <div className="services-head">
-          <SectionTitle eyebrow="Our services" lines={['Six rituals,', 'one *studio.*']} id="services-title" />
-          <Reveal delay={100} className="services-intro">
-            <p className="lede">Everything on our banner, under one roof. Choose a service to explore it — or start an enquiry and we’ll help you find what suits you.</p>
-            <p className="fine">Treatments shown are a guide; please enquire to confirm availability.</p>
+        <div className="svcx-head">
+          <SectionTitle eyebrow="Our services" lines={['Beauty Care for', 'Every *You.*']} id="services-title" />
+          <Reveal className="svcx-intro" delay={150}>
+            <p className="lede">Hair, skin, nails, lashes and makeup under one roof — plus an academy for those learning the craft.</p>
           </Reveal>
         </div>
-        <div className="svc-grid">
+
+        <ul className="svcx-grid">
           {SERVICES.map((s, i) => (
-            <ServiceCard s={s} index={i} key={s.id} />
+            <Reveal as="li" key={s.id} variant="curtain" className={`svcx-cell svcx-cell--${s.id}`} delay={i * 90}>
+              <Link className="svcx-card" to={s.to}>
+                <span className="svcx-img">
+                  <Img {...s.image} sizes={SIZES[s.id] || '(max-width: 700px) 50vw, (max-width: 1000px) 40vw, 26vw'} />
+                </span>
+                <span className="svcx-info">
+                  <span className="svcx-no" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+                  <span className="svcx-name">{s.title}</span>
+                  <span className="svcx-kick">{s.kicker}</span>
+                </span>
+                <span className="svcx-go" aria-hidden="true"><Icon name="arrow" size={16} /></span>
+              </Link>
+            </Reveal>
           ))}
-        </div>
+        </ul>
       </div>
     </section>
   );

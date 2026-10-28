@@ -18,7 +18,9 @@ export default function SectionTitle({ eyebrow, lines, id, as: H = 'h2', classNa
       <H className="h2" id={id}>
         {lines.map((l, i) => (
           <span className="line" key={i}>
-            <Accent text={l} />
+            <span className="line-in" style={{ '--li': i }}>
+              <Accent text={l} />
+            </span>
           </span>
         ))}
       </H>

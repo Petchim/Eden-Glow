@@ -24,11 +24,12 @@ export function useBodyLock(locked) {
   }, [locked]);
 }
 
-/** Subtle vertical parallax for one element; disabled for reduced motion. */
+/** Subtle vertical parallax for one element; desktop only, disabled for reduced motion. */
 export function useParallax(ref, strength = 0.08) {
   useEffect(() => {
     const el = ref.current;
-    if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+    const still = window.matchMedia('(prefers-reduced-motion: reduce), (max-width: 900px), (pointer: coarse)');
+    if (!el || still.matches) return undefined;
     let frame = 0;
     const update = () => {
       frame = 0;

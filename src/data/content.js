@@ -19,6 +19,17 @@ export const NAV = [
   { label: 'Contact', to: '/contact' },
 ];
 
+/* Desktop header: five top-level items, with the service pages grouped under "Services".
+   The mobile menu still lists every page in NAV. */
+const SERVICE_PATHS = ['/hair', '/skin', '/nails', '/lashes', '/makeup'];
+export const MAIN_NAV = [
+  { label: 'Home', to: '/' },
+  { label: 'Services', children: NAV.filter((l) => SERVICE_PATHS.includes(l.to)) },
+  { label: 'Academy', to: '/academy' },
+  { label: 'Gallery', to: '/gallery' },
+  { label: 'Contact', to: '/contact' },
+];
+
 export const BOOK_PATH = '/book-appointment';
 /** Link to the booking page with a service (and optional treatment) pre-selected. */
 export const bookLink = (service, treatment) => {
@@ -34,32 +45,32 @@ export const DISCIPLINES = ['Hair', 'Skin', 'Nails', 'Lashes', 'Makeup', 'Academ
 /* Home page service cards — each opens its own page. */
 export const SERVICES = [
   {
-    id: 'hair', title: 'Hair', kicker: 'Cut · Colour · Care', layout: 'feature', to: '/hair',
+    id: 'hair', title: 'Hair', short: 'Hair Styling', kicker: 'Cut · Colour · Care', layout: 'feature', to: '/hair',
     desc: 'Hair styling, haircuts, colour and hair-care treatments — shaped around your texture, your routine and the way you like to wear it.',
     image: CARD_IMAGES.hair,
   },
   {
-    id: 'skin', title: 'Skin', kicker: 'Facials · Skincare', layout: 'offset', to: '/skin',
+    id: 'skin', title: 'Skin', short: 'Skin Care', kicker: 'Facials · Skincare', layout: 'offset', to: '/skin',
     desc: 'Facials, skincare and beauty treatments that leave skin feeling cared for and looking quietly radiant.',
     image: CARD_IMAGES.skin,
   },
   {
-    id: 'nails', title: 'Nails', kicker: 'Manicure · Pedicure · Art', layout: 'small', to: '/nails',
+    id: 'nails', title: 'Nails', short: 'Nails', kicker: 'Manicure · Pedicure · Art', layout: 'small', to: '/nails',
     desc: 'Nail care, manicure, pedicure and nail artistry with a clean, considered finish.',
     image: CARD_IMAGES.nails,
   },
   {
-    id: 'lashes', title: 'Lashes', kicker: 'Styling · Enhancement', layout: 'wide', to: '/lashes',
+    id: 'lashes', title: 'Lashes', short: 'Lashes', kicker: 'Styling · Enhancement', layout: 'wide', to: '/lashes',
     desc: 'Lash styling and enhancement to frame your eyes — from barely-there to beautifully defined.',
     image: CARD_IMAGES.lashes,
   },
   {
-    id: 'makeup', title: 'Makeup', kicker: 'Occasion · Party · Bridal', layout: 'small', to: '/makeup',
+    id: 'makeup', title: 'Makeup', short: 'Makeup', kicker: 'Occasion · Party · Bridal', layout: 'small', to: '/makeup',
     desc: 'Occasion, party and bridal makeup designed around your features, your outfit and your day.',
     image: CARD_IMAGES.makeup,
   },
   {
-    id: 'academy', title: 'Academy', kicker: 'Training · Learning', layout: 'side', to: '/academy',
+    id: 'academy', title: 'Academy', short: 'Academy', kicker: 'Training · Learning', layout: 'side', to: '/academy',
     desc: 'Beauty training and professional learning for those who want to make the craft their own.',
     image: CARD_IMAGES.academy,
   },
@@ -79,6 +90,22 @@ export const ABOUT = {
   ],
   note: '[Your studio story — add how Eden Glow began, in your own words.]',
 };
+
+/* Home hero — short reassurance points under the buttons (keep them factual). */
+export const HERO_FEATURES = [
+  { icon: 'user', label: 'Personalised care' },
+  { icon: 'sparkle', label: 'Six beauty services' },
+  { icon: 'leaf', label: 'Calm, elegant space' },
+  { icon: 'calendar', label: 'Easy WhatsApp booking' },
+];
+
+/* Home "Elevate Your Everyday Beauty" section. Confirm these points describe the studio. */
+export const EXPERIENCE_FEATURES = [
+  { icon: 'heart', title: 'Professional Care', text: 'Careful, attentive work from first consultation to final finish.' },
+  { icon: 'shield', title: 'Hygienic Environment', text: 'Clean tools and a well-kept studio for every visit.' },
+  { icon: 'tools', title: 'Modern Equipment', text: 'Up-to-date tools and products chosen for each treatment.' },
+  { icon: 'sparkle', title: 'Personalised Experience', text: 'Every treatment shaped around you and your routine.' },
+];
 
 export const SIGNATURE = {
   points: [

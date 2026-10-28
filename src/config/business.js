@@ -34,6 +34,10 @@ export const BUSINESS = {
   // Google Maps → Share → "Embed a map" → copy only the src="…" URL
   googleMapsEmbedUrl: '', // TODO: e.g. 'https://www.google.com/maps/embed?pb=…'
 
+  // Link to a studio video (e.g. YouTube or Instagram Reel). While empty, the home page
+  // shows "Tour Our Studio" (salon photos in the gallery) instead of "Watch Our Studio".
+  studioVideoUrl: '', // TODO: optional
+
   instagramUrl: '', // TODO: e.g. 'https://instagram.com/yourhandle'
   instagramHandle: '', // TODO: e.g. '@edenglowstudio'
 };

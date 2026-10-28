@@ -15,24 +15,50 @@
 const u = (id, w = 1200) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=78`;
 const p = (id, w = 1200) => `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=${w}`;
 
-/* ---------- Home ---------- */
+/* ---------- Home ----------
+   Stored locally in /public/images/home/ (downloaded from Unsplash and
+   Pexels under their free licences) so the home page never depends on
+   a third-party image host. */
+const home = (file) => `/images/home/${file}`;
+
 export const HOME_IMAGES = {
-  heroMain: { src: u('1560869713-7d0a29430803', 1400), alt: 'Stylist shaping soft curls with a curling tong', position: '50% 30%' },
-  heroSecond: { src: u('1570172619644-dfd03ed5d881', 700), alt: 'Facial mask being applied with a brush during a skincare treatment' },
+  // Optimised JPEG copy of 'Beauty in Bloom.png' (same image, ~270 KB instead of 2.4 MB).
+  // `artInImage`: the photo already carries the "Beauty is a feeling" script and blossoms,
+  // so the hero skips its own overlay phrase and line-art florals.
+  hero: {
+    src: home('hero-beauty-in-bloom.jpg'),
+    alt: 'Woman with long, tousled brunette hair and a burgundy satin wrap, eyes closed, framed by pink blossom branches',
+    position: '100% 30%',
+    artInImage: true,
+  },
+  signature: { src: home('signature-portrait.jpg'), alt: 'Smiling woman with long dark hair and a white flower tucked behind her ear', position: '50% 35%' },
+  booking: { src: home('cta-salon.jpg'), alt: 'Stylist shaping soft curls with a curling tong', position: '50% 35%' },
+  // used by the About / AcademyTeaser sections (not currently on the home page)
   about: { src: u('1633681926035-ec1ac984418a', 1100), alt: 'Elegant salon interior with round mirrors and styling chairs' },
-  signature: { src: u('1600948836101-f9ffda59d250', 1800), alt: 'Quiet, dark-toned salon with round mirrors and soft light' },
   academy: { src: u('1596704017254-9b121068fb31', 1100), alt: 'Hand holding an eyeshadow palette and a fine makeup brush', position: '50% 40%' },
 };
 
 /* ---------- Service cards (home page + footer) ---------- */
 export const CARD_IMAGES = {
-  hair: { src: u('1562322140-8baeececf3df', 1100), alt: 'Hairdresser blow-drying a client’s hair in a bright salon' },
-  skin: { src: p(3985325, 900), alt: 'Facial mask being brushed on during a skincare treatment' },
-  nails: { src: u('1457972729786-0411a3b2b626', 900), alt: 'Manicurist painting a client’s nails a deep berry shade' },
-  lashes: { src: u('1589710751893-f9a6770ad71b', 1000), alt: 'Lash stylist applying lash extensions with fine tweezers' },
-  makeup: { src: p(4620846, 900), alt: 'Blush being applied with a soft makeup brush' },
-  academy: { src: u('1559599101-f09722fb4948', 1100), alt: 'Beauty professionals holding styling scissors in a salon' },
+  hair: { src: home('service-hair.jpg'), alt: 'Long, glossy curls styled into a half-up look in the salon', position: '50% 40%' },
+  skin: { src: home('service-skin.jpg'), alt: 'Face serum being applied with a dropper to glowing, natural skin', position: '50% 35%' },
+  nails: { src: home('service-nails.jpg'), alt: 'Manicured hands finished with classic red polish', position: '50% 45%' },
+  lashes: { src: home('service-lashes.jpg'), alt: 'Lash stylist placing individual lash extensions with fine tweezers', position: '50% 55%' },
+  makeup: { src: home('service-makeup.jpg'), alt: 'Lipstick being applied to finish a soft, glamorous makeup look', position: '35% 40%' },
+  academy: { src: home('service-academy.jpg'), alt: 'Stylist working on a client’s curly hair in a bright salon', position: '58% 40%' },
 };
+
+/* ---------- Home gallery (editorial grid, opens in the lightbox) ---------- */
+const hg = (file, cat, caption, position) => ({ cat, caption, src: home(file), full: home(file), position });
+export const HOME_GALLERY = [
+  hg('gallery-red-lip.jpg', 'Makeup', 'Evening red', '50% 35%'),
+  hg('gallery-curling.jpg', 'Hair', 'Curls, set by hand', '50% 40%'),
+  hg('gallery-nails.jpg', 'Nails', 'Glossy tortoiseshell', '50% 50%'),
+  hg('gallery-glam.jpg', 'Makeup', 'Soft, smoky glam', '50% 35%'),
+  hg('gallery-skin-ritual.jpg', 'Skin', 'A calm skincare ritual', '50% 30%'),
+  hg('gallery-lashes.jpg', 'Lashes', 'Placed one by one', '50% 40%'),
+  hg('gallery-curls.jpg', 'Hair', 'Soft, defined curls', '50% 30%'),
+];
 
 /* ---------- Hair ---------- */
 export const HAIR_IMAGES = {
