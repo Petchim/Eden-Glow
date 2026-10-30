@@ -223,7 +223,7 @@
 .hero-features li { display: flex; align-items: center; gap: 10px; padding-right: 16px; font-size: 10px; letter-spacing: 0.14em; line-height: 1.45; text-transform: uppercase; color: var(--caption); font-weight: 500; }
 .hero-features li + li { padding-left: 16px; border-left: 1px solid var(--line-soft); }
 .hero-features svg { flex: none; color: var(--decor); }
-/* studio area + city (config/business.js), shown once a city is set */
+/* studio area + city (config/business.ts), shown once a city is set */
 .hero-place { display: flex; align-items: center; gap: 8px; margin: -12px 0 26px; font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--caption); font-weight: 500; }
 .hero-place svg { flex: none; color: var(--decor); }
 

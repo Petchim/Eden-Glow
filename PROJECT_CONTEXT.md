@@ -14,7 +14,7 @@ Lashes, Makeup** and a training **Academy**. Tagline: **"Look Good. Feel Good. B
   to WhatsApp (or email, or a copy-to-clipboard fallback). The site never claims a booking is
   confirmed; the studio confirms by reply.
 - **Content is data-driven.** Nearly all wording, images and treatment lists live in
-  `src/data/*.js` and `src/config/business.js`; components just render them.
+  `src/data/*.ts` and `src/config/business.ts`; components just render them.
 - **Tone:** premium, calm, editorial, feminine. Rose / burgundy / champagne-gold palette,
   serif headlines, script accents, fine line-art florals.
 
@@ -37,52 +37,52 @@ Commands: `npm run dev` (localhost:5173), `npm run build` (→ `dist/`), `npm ru
 
 ```
 index.html                 Fonts, default <title>/meta, #root
-vite.config.js
+vite.config.ts
 public/
   images/home/             Local home-page photos (jpg) — hero, service cards, gallery, signature, CTA
   favicon.svg  _redirects  .htaccess
 src/
-  main.jsx                 BrowserRouter + imports base.css, sections.css, pages.css
-  App.jsx                  Routes; every page except Home is React.lazy + Suspense
-  config/business.js       BUSINESS details (WhatsApp, phone, email, address, hours, maps, IG) + link helpers
+  main.tsx                 BrowserRouter + imports base.css, sections.css, pages.css
+  App.tsx                  Routes; every page except Home is React.lazy + Suspense
+  config/business.ts       BUSINESS details (WhatsApp, phone, email, address, hours, maps, IG) + link helpers
   data/
-    content.js             NAV, MAIN_NAV, bookLink(), SERVICES (home cards), BOOKING_SERVICES,
+    content.ts             NAV, MAIN_NAV, bookLink(), SERVICES (home cards), BOOKING_SERVICES,
                            ABOUT, HERO_FEATURES, EXPERIENCE_FEATURES, SIGNATURE, WHY, TESTIMONIALS
-    services.js            SERVICE_PAGES {hair, skin, nails, lashes} + MAKEUP_PAGE
-    academy.js             ACADEMY (all course details are placeholders)
-    images.js              Every image (src, alt, position) grouped by page; GALLERY_IMAGES, galleryFor()
-    searchIndex.js         SEARCH_INDEX built from existing content + searchSite(query)
+    services.ts            SERVICE_PAGES {hair, skin, nails, lashes} + MAKEUP_PAGE
+    academy.ts             ACADEMY (all course details are placeholders)
+    images.ts              Every image (src, alt, position) grouped by page; GALLERY_IMAGES, galleryFor()
+    searchIndex.ts         SEARCH_INDEX built from existing content + searchSite(query)
   hooks/
-    usePageMeta.js         Sets document.title + meta description/og tags per page
-    useReveal.js           IntersectionObserver → adds is-in once (scroll reveal)
-    useColumns.js          Responsive column count for masonry gallery
-    useUi.js               useScrolled, useBodyLock, useParallax
-  utils/enquiry.js         Validation (checkName/Phone/Email), date/time formatting, sendEnquiry()
+    usePageMeta.ts         Sets document.title + meta description/og tags per page
+    useReveal.ts           IntersectionObserver → adds is-in once (scroll reveal)
+    useColumns.ts          Responsive column count for masonry gallery
+    useUi.ts               useScrolled, useBodyLock, useParallax
+  utils/enquiry.ts         Validation (checkName/Phone/Email), date/time formatting, sendEnquiry()
   components/
-    layout/Layout.jsx      Skip link, Header, <main> with focus management, Outlet, Footer
-    Header.jsx             Sticky header; desktop "Services" dropdown; mobile menu; lazy SearchDialog
-    Footer.jsx  Brand.jsx
-    SearchDialog.jsx       Site search modal (lazy-loaded)
-    PageHero.jsx           Inner-page hero with variants (arch / split / framed / full …)
-    ServicePage.jsx        Shared template for Hair/Skin/Nails/Lashes, ordered by `order` array
-    ServiceSections.jsx    Intro, Offerings, Info, GallerySection building blocks
-    BookingForm.jsx        Appointment enquiry form (service → treatment, date, time)
-    EnquiryForm.jsx        Contact / academy enquiry form
-    forms/Field.jsx  forms/EnquiryResult.jsx
-    GalleryGrid.jsx  Lightbox.jsx  Faq.jsx  CtaBand.jsx  ContactDetails.jsx
+    layout/Layout.tsx      Skip link, Header, <main> with focus management, Outlet, Footer
+    Header.tsx             Sticky header; desktop "Services" dropdown; mobile menu; lazy SearchDialog
+    Footer.tsx  Brand.tsx
+    SearchDialog.tsx       Site search modal (lazy-loaded)
+    PageHero.tsx           Inner-page hero with variants (arch / split / framed / full …)
+    ServicePage.tsx        Shared template for Hair/Skin/Nails/Lashes, ordered by `order` array
+    ServiceSections.tsx    Intro, Offerings, Info, GallerySection building blocks
+    BookingForm.tsx        Appointment enquiry form (service → treatment, date, time)
+    EnquiryForm.tsx        Contact / academy enquiry form
+    forms/Field.tsx  forms/EnquiryResult.tsx
+    GalleryGrid.tsx  Lightbox.tsx  Faq.tsx  CtaBand.tsx  ContactDetails.tsx
     home/                  Hero, Services, Signature, Gallery, BookingCta (used on Home)
                            About, AcademyTeaser, Testimonials, Why, Ribbon (exist but NOT currently used)
     ui/
-      Button.jsx           One button for `to` (Link), `href` (a), or <button>; variant 'gold' | 'line'; `arrow`, `icon`
-      Img.jsx              Fade-in image, lazy by default, `priority` for hero, `position`, branded fallback on error
-      Icon.jsx             Inline SVG icon set (see §7)
-      SectionTitle.jsx     Eyebrow + h2 with per-line reveal; exports Accent
-      Reveal.jsx           Scroll reveal wrapper; variant 'rise' | 'fade' | 'curtain'; `delay` ms
-      Floral.jsx  Leaf.jsx Decorative line-art SVGs (currentColor)
+      Button.tsx           One button for `to` (Link), `href` (a), or <button>; variant 'gold' | 'line'; `arrow`, `icon`
+      Img.tsx              Fade-in image, lazy by default, `priority` for hero, `position`, branded fallback on error
+      Icon.tsx             Inline SVG icon set (see §7)
+      SectionTitle.tsx     Eyebrow + h2 with per-line reveal; exports Accent
+      Reveal.tsx           Scroll reveal wrapper; variant 'rise' | 'fade' | 'curtain'; `delay` ms
+      Floral.tsx  Leaf.tsx Decorative line-art SVGs (currentColor)
   pages/
-    Home.jsx               Hero → Services → Signature → Gallery → BookingCta
-    Hair/Skin/Nails/Lashes.jsx   6-line wrappers: <ServicePage service={SERVICE_PAGES.x} />
-    Makeup.jsx  Academy.jsx  Gallery.jsx  Contact.jsx  BookAppointment.jsx  NotFound.jsx
+    Home.tsx               Hero → Services → Signature → Gallery → BookingCta
+    Hair/Skin/Nails/Lashes.tsx   6-line wrappers: <ServicePage service={SERVICE_PAGES.x} />
+    Makeup.tsx  Academy.tsx  Gallery.tsx  Contact.tsx  BookAppointment.tsx  NotFound.tsx
   styles/
     base.css               Tokens (:root), dark-surface remap, typography, buttons, shared components
     sections.css           Header, footer, home page sections
@@ -126,7 +126,7 @@ via `<Accent>`. Example: `title: ['Hair that feels', 'like *you.*']`.
 }
 ```
 Offering item titles double as the treatment options in `BookingForm` (`TREATMENTS`) and as
-search entries in `searchIndex.js` — renaming one updates all three.
+search entries in `searchIndex.ts` — renaming one updates all three.
 
 **Business config** (`BUSINESS`): `whatsappNumber` (digits only, intl format), `phone`,
 `phoneDisplay`, `email`, `address[]`, `hours[{days,time}]`, `googleMapsUrl`,
@@ -137,7 +137,7 @@ related button.
 
 ## 6. Enquiry flow
 
-1. Form validates in the browser (`utils/enquiry.js`): name ≥ 2 chars, phone 8–15 digits,
+1. Form validates in the browser (`utils/enquiry.ts`): name ≥ 2 chars, phone 8–15 digits,
    date not in the past, time not already passed today.
 2. A plain-text message is built (`buildMessage`).
 3. `sendEnquiry(message, subject)` picks a channel via `enquiryChannel()`:
@@ -188,7 +188,7 @@ clock, instagram, copy, check, heart, sparkle, leaf, calendar, shield, tools, us
 - Always use `<Img>` for photos (never raw `<img>`), `<Button>` for CTAs, `usePageMeta(title, description)`
   at the top of every page.
 - Keep content in `src/data/`; components should not hard-code copy.
-- New pages: add a lazy import + route in `App.jsx`, a `NAV` entry in `content.js`, and they
+- New pages: add a lazy import + route in `App.tsx`, a `NAV` entry in `content.ts`, and they
   appear in search automatically if they're in `NAV`.
 - Accessibility is a priority: skip link, focus management, `aria-*` on menus/dialogs,
   Escape closes overlays, `useBodyLock` while modals are open, meaningful `alt` text,
@@ -205,7 +205,7 @@ clock, instagram, copy, check, heart, sparkle, leaf, calendar, shield, tools, us
 - Treatment lists are a **proposed** menu (`confirmed: false`) until the studio confirms.
 - Academy courses are placeholders ("Details coming soon").
 - Most non-home photos are **temporary stock** (Unsplash / Pexels URLs via `u()` / `p()` helpers
-  in `images.js`) and are labelled as such in galleries. To use real photos: put files in
+  in `images.ts`) and are labelled as such in galleries. To use real photos: put files in
   `public/images/` and set `src: '/images/…'`.
 
 ## 10. Current state (as of 2026-10-28)

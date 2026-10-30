@@ -8,13 +8,13 @@ own chunk, so public visitors never download it (or the Firebase SDK), and `robo
 
 | File | What it is |
 | --- | --- |
-| `src/lib/firebase.js` | The one Firebase setup: reads `VITE_FIREBASE_*` from `.env.local`, optional emulators |
-| `src/admin/api/index.js` | The API contract the screens use; picks Firebase (default) or the demo mock |
-| `src/admin/api/firestoreApi.js` | Firebase backend: Auth sign-in, Firestore reads/writes, transactions |
-| `src/admin/api/engine.js` | Shared rules: validation, invoice building, dashboard/report views |
+| `src/lib/firebase.ts` | The one Firebase setup: reads `VITE_FIREBASE_*` from `.env.local`, optional emulators |
+| `src/admin/api/index.ts` | The API contract the screens use; picks Firebase (default) or the demo mock |
+| `src/admin/api/firestoreApi.ts` | Firebase backend: Auth sign-in, Firestore reads/writes, transactions |
+| `src/admin/api/engine.ts` | Shared rules: validation, invoice building, dashboard/report views |
 | `firestore.rules` | Who may read/write what. **This is the real protection.** |
 | `src/admin/mock/` | Demo data, used only with `VITE_ADMIN_DEMO=true` (browser-only, not secure) |
-| `src/lib/publicServices.js` | Helper to read published services on public pages (not used by them yet) |
+| `src/lib/publicServices.ts` | Helper to read published services on public pages (not used by them yet) |
 
 ### Firestore data
 
@@ -68,8 +68,8 @@ Recommended later: enable **App Check** for Firestore, and set a budget alert in
 - `npm run emulators` runs the Auth + Firestore emulators with `firestore.rules`. Set
   `VITE_FIREBASE_USE_EMULATORS=true` in `.env.local` to point the admin at them.
 - `npm test` starts the emulators, then runs the engine tests, the security-rules tests
-  (`tests/rules.test.js`) and an end-to-end test of every admin data operation
-  (`tests/firestoreApi.test.js`). Needs Java 11+.
+  (`tests/rules.test.ts`) and an end-to-end test of every admin data operation
+  (`tests/firestoreApi.test.ts`). Needs a JDK on the PATH (tested with JDK 21).
 - `VITE_ADMIN_DEMO=true` runs the screens on the in-browser demo data with no Firebase at all.
   The demo sign-in (`admin@edenglow.demo` / `EdenGlow@demo`) protects nothing; never use it in production.
 
@@ -78,9 +78,9 @@ Recommended later: enable **App Check** for Firestore, and set a budget alert in
 - `pages/` one file per screen (Login, Dashboard, CreateBill, InvoiceDetail, Invoices,
   Customers, Appointments, Services, Expenses, Reports, Settings)
 - `components/` admin layout, sidebar, form controls, cards, modals
-- `charts/Charts.jsx` small SVG charts (no chart library)
+- `charts/Charts.tsx` small SVG charts (no chart library)
 - `lib/` money/date formatting, bill arithmetic, invoice PDF (jsPDF, loaded on demand), website menu import
 - `admin.css` all admin styles, prefixed `ad-`
 
-Studio address, phone and email on invoices come from `src/config/business.js`; anything left
+Studio address, phone and email on invoices come from `src/config/business.ts`; anything left
 empty there is left off the invoice rather than invented.
