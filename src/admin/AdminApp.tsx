@@ -15,6 +15,7 @@ const Services = lazy(() => import('./pages/Services.tsx'));
 const Expenses = lazy(() => import('./pages/Expenses.tsx'));
 const Reports = lazy(() => import('./pages/Reports.tsx'));
 const Settings = lazy(() => import('./pages/Settings.tsx'));
+const Gallery = lazy(() => import('./pages/Gallery.tsx'));
 
 const page = (el: ReactNode) => <Suspense fallback={<div className="ad-boot" aria-busy="true" />}>{el}</Suspense>;
 
@@ -54,6 +55,7 @@ export default function AdminApp() {
           <Route path="services" element={page(<Services />)} />
           <Route path="expenses" element={page(<Expenses />)} />
           <Route path="reports" element={page(<Reports />)} />
+          <Route path="gallery" element={page(<Gallery />)} />
           <Route path="settings" element={page(<Settings />)} />
           <Route path="*" element={<Navigate to="dashboard" replace />} />
         </Route>

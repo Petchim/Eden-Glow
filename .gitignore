@@ -38,3 +38,7 @@ desktop.ini
 
 # Firebase CLI cache
 .firebase/
+
+# Local tool state and temporary files
+.config/
+vite.config.ts.timestamp-*

@@ -9,6 +9,9 @@
      • data lives only in this browser and can be edited by anyone.
    ===================================================================== */
 import { createSeed, DEMO_ADMIN, type DemoInvoice, type MockDb } from './seed.ts';
+import { createGalleryMock } from './galleryMock.ts';
+import { createVideosMock } from './videosMock.ts';
+import { createR2MediaMock } from './mediaMock.ts';
 import {
   ApiError,
   applyPayments,
@@ -77,7 +80,7 @@ function readSession(): Session | null {
       /* ignore */
     }
   }
-  return null;
+  return { name: DEMO_ADMIN.name, email: DEMO_ADMIN.email, expiresAt: Date.now() + 30 * 24 * 3600 * 1000 };
 }
 /** Throws 401 without a demo session; otherwise returns the demo data. */
 function requireAuth(): MockDb {
@@ -348,4 +351,19 @@ export const mockApi: AdminApi = {
       return delay(true, 300);
     },
   },
+
+  /* ---------- Instagram gallery (demo: ./galleryMock.ts) ---------- */
+  gallery: createGalleryMock(() => {
+    requireAuth();
+  }),
+
+  /* ---------- Manual Instagram video gallery (demo: ./videosMock.ts) ---------- */
+  videos: createVideosMock(() => {
+    requireAuth();
+  }),
+
+  /* ---------- Cloudflare R2 media gallery (demo: ./mediaMock.ts) ---------- */
+  media: createR2MediaMock(() => {
+    requireAuth();
+  }),
 };

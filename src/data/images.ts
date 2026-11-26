@@ -147,7 +147,12 @@ const g = (cat: string, caption: string, ratio: GalleryRatio, src: string, full:
 const ug = (id: string, cat: string, caption: string, ratio: GalleryRatio = 'p') => g(cat, caption, ratio, u(id, 800), u(id, 1800));
 const pg = (id: number, cat: string, caption: string, ratio: GalleryRatio = 'p') => g(cat, caption, ratio, p(id, 800), p(id, 1800));
 
-export const GALLERY_CATEGORIES = ['All', 'Hair', 'Skin', 'Nails', 'Lashes', 'Makeup', 'Salon Interior'];
+/** Categories a photo or Instagram post can belong to (admin, server and firestore.rules use the same list). */
+export const MEDIA_CATEGORY_LIST = ['Hair', 'Skin', 'Nails', 'Lashes', 'Makeup', 'Transformations', 'Salon Interior'];
+/** Gallery filter for every imported Instagram video (Reels and other videos), not a category. */
+export const REELS_FILTER = 'Instagram Reels';
+/** The gallery's filter buttons, in order. */
+export const GALLERY_CATEGORIES = ['All', ...MEDIA_CATEGORY_LIST, REELS_FILTER];
 
 export const GALLERY_IMAGES: GalleryImage[] = [
   pg(3065207, 'Hair', 'Soft, defined curls', 't'),

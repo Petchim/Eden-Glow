@@ -19,6 +19,15 @@ export interface Photo {
 /** 'p' portrait 4:5 · 't' tall 2:3 · 's' square · 'l' landscape 4:3 */
 export type GalleryRatio = 'p' | 't' | 's' | 'l';
 
+/** A slide of an Instagram carousel post. */
+export interface GallerySlide {
+  kind: 'image' | 'video';
+  /** Photo URL, or the video's cover image. */
+  src: string;
+  /** Video file, when Instagram provides one. */
+  video?: string;
+}
+
 export interface GalleryImage {
   cat: string;
   caption: string;
@@ -28,6 +37,28 @@ export interface GalleryImage {
   srcSet?: string;
   ratio?: GalleryRatio;
   position?: string;
+  /* ----- optional: set for posts imported from Instagram ----- */
+  /** Stable key (Instagram posts); stock photos are keyed by `src`. */
+  id?: string;
+  source?: 'stock' | 'instagram';
+  /** 'image' when omitted. */
+  kind?: 'image' | 'video' | 'carousel';
+  /** Video file for kind 'video' (Instagram can withhold it, e.g. for licensed music). */
+  video?: string;
+  /** Carousel slides, in order. */
+  slides?: GallerySlide[];
+  /** The original post on Instagram (opened in a new tab). */
+  permalink?: string;
+  isReel?: boolean;
+  featured?: boolean;
+  /** Descriptive alt text; falls back to "category: caption". */
+  alt?: string;
+  /** When it was posted on Instagram (ISO). */
+  takenAt?: string;
+  /** The full Instagram caption (the tile shows a short version). */
+  fullCaption?: string;
+  /** Instagram's like count, only when Instagram provided one (never estimated). */
+  likeCount?: number;
 }
 
 export interface NavLink {

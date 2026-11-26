@@ -10,6 +10,9 @@ interface ImportMetaEnv {
   readonly VITE_FIREBASE_APP_ID?: string;
   readonly VITE_FIREBASE_USE_EMULATORS?: string;
   readonly VITE_FIREBASE_EMULATOR_HOST?: string;
+  readonly VITE_INSTAGRAM_API_URL?: string;
+  readonly VITE_MEDIA_BASE_URL?: string;
+  readonly VITE_MEDIA_API_URL?: string;
   readonly VITE_ADMIN_DEMO?: string;
 }
 

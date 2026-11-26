@@ -14,6 +14,7 @@ const NAV: { to: string; label: string; icon: AIconName }[] = [
   { to: '/admin/customers', label: 'Customers', icon: 'users' },
   { to: '/admin/appointments', label: 'Appointments', icon: 'calendar' },
   { to: '/admin/services', label: 'Services', icon: 'spa' },
+  { to: '/admin/gallery', label: 'Gallery Videos', icon: 'instagram' },
   { to: '/admin/expenses', label: 'Expenses', icon: 'wallet' },
   { to: '/admin/reports', label: 'Reports', icon: 'chart' },
   { to: '/admin/settings', label: 'Settings', icon: 'settings' },

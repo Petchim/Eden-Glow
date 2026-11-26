@@ -1,0 +1,9 @@
+# Copy to .dev.vars for `npm run dev` (local only, ignored by Git). Use the Firebase emulators:
+FIRESTORE_EMULATOR_HOST=127.0.0.1:8080
+AUTH_EMULATOR_HOST=127.0.0.1:9099
+FIREBASE_PROJECT_ID=demo-eden-glow
+FIREBASE_API_KEY=demo-key
+TOKEN_KEY=          # openssl rand -base64 32
+SYNC_BOT_EMAIL=sync-bot@example.com
+SYNC_BOT_PASSWORD=  # the bot user's password in the Auth emulator
+INSTAGRAM_APP_SECRET=

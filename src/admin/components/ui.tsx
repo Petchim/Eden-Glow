@@ -184,19 +184,27 @@ interface ModalProps {
 export function Modal({ open, title, onClose, children, footer, wide = false }: ModalProps) {
   const ref = useRef<HTMLDivElement>(null);
   const titleId = useId();
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
   useEffect(() => {
     if (!open) return undefined;
     const prev = document.activeElement as HTMLElement | null;
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onCloseRef.current?.();
     document.addEventListener('keydown', onKey);
     document.body.style.overflow = 'hidden';
-    setTimeout(() => ref.current?.querySelector<HTMLElement>('input, select, textarea, button')?.focus(), 30);
+    setTimeout(() => {
+      const target =
+        ref.current?.querySelector<HTMLElement>('.ad-modal-body input, .ad-modal-body select, .ad-modal-body textarea') ||
+        ref.current?.querySelector<HTMLElement>('input, select, textarea, button');
+      target?.focus();
+    }, 30);
     return () => {
       document.removeEventListener('keydown', onKey);
       document.body.style.overflow = '';
       prev?.focus?.();
     };
-  }, [open, onClose]);
+  }, [open]);
   if (!open) return null;
   return createPortal(
     <div className="ad-modal-bg" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>

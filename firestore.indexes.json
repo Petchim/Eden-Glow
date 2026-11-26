@@ -1,4 +1,75 @@
 {
-  "indexes": [],
+  "indexes": [
+    {
+      "collectionGroup": "galleryMedia",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "available", "order": "ASCENDING" },
+        { "fieldPath": "sortOrder", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "galleryMedia",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "available", "order": "ASCENDING" },
+        { "fieldPath": "featured", "order": "ASCENDING" },
+        { "fieldPath": "sortOrder", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "galleryMedia",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "available", "order": "ASCENDING" },
+        { "fieldPath": "kind", "order": "ASCENDING" },
+        { "fieldPath": "sortOrder", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "galleryMedia",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "sortOrder", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "galleryMedia",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "sortOrder", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "galleryMedia",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "storageProvider", "order": "ASCENDING" },
+        { "fieldPath": "sortOrder", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "galleryMedia",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "storageProvider", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "sortOrder", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "galleryVideos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "sortOrder", "order": "DESCENDING" }
+      ]
+    }
+  ],
   "fieldOverrides": []
 }

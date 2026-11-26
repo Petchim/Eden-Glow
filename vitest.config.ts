@@ -4,7 +4,7 @@ import { defineConfig } from 'vitest/config';
 // (firebase emulators:exec), never to the real project.
 export default defineConfig({
   test: {
-    include: ['tests/**/*.test.ts'],
+    include: ['tests/**/*.test.ts', 'worker/test/**/*.test.ts'],
     fileParallelism: false,
     testTimeout: 20000,
     env: {

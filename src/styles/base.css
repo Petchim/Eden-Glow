@@ -119,7 +119,10 @@ main:focus { outline: none; }
 
 /* ---------- page transition ---------- */
 @keyframes pagein { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-.page { animation: pagein 0.7s var(--ease) both; }
+/* `backwards`, not `both`: once the entrance has played the transform is dropped. A transform left on
+   .page would make it the containing block for position: fixed, so the gallery viewer would open far
+   down the page instead of over the screen. */
+.page { animation: pagein 0.7s var(--ease) backwards; }
 .page-loading { min-height: 100vh; }
 
 .skip-link {

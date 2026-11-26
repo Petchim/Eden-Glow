@@ -11,6 +11,7 @@ const Lashes = lazy(() => import('./pages/Lashes.tsx'));
 const Makeup = lazy(() => import('./pages/Makeup.tsx'));
 const Academy = lazy(() => import('./pages/Academy.tsx'));
 const Gallery = lazy(() => import('./pages/Gallery.tsx'));
+const ReelDetail = lazy(() => import('./pages/ReelDetail.tsx'));
 const Contact = lazy(() => import('./pages/Contact.tsx'));
 const BookAppointment = lazy(() => import('./pages/BookAppointment.tsx'));
 const NotFound = lazy(() => import('./pages/NotFound.tsx'));
@@ -32,6 +33,7 @@ export default function App() {
         <Route path="makeup" element={page(<Makeup />)} />
         <Route path="academy" element={page(<Academy />)} />
         <Route path="gallery" element={page(<Gallery />)} />
+        <Route path="gallery/reel/:id" element={page(<ReelDetail />)} />
         <Route path="contact" element={page(<Contact />)} />
         <Route path="book-appointment" element={page(<BookAppointment />)} />
         <Route path="*" element={page(<NotFound />)} />

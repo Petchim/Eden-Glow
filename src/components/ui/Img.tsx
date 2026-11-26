@@ -6,6 +6,8 @@ interface ImgProps extends Omit<Photo, 'artInImage'> {
   priority?: boolean;
   className?: string;
   sizes?: string;
+  /** Called once if the photo can't be loaded (e.g. an expired Instagram link). */
+  onFail?: () => void;
 }
 
 /**
@@ -17,7 +19,7 @@ interface ImgProps extends Omit<Photo, 'artInImage'> {
  *    and is retried on its own if a WebP copy fails to load
  *  - if the photo can't load, shows a branded textured panel instead of a broken image
  */
-export default function Img({ src, srcSet, alt, priority = false, className = '', sizes, position }: ImgProps) {
+export default function Img({ src, srcSet, alt, priority = false, className = '', sizes, position, onFail }: ImgProps) {
   const [state, setState] = useState<'loading' | 'loaded' | 'error'>('loading');
   const [plain, setPlain] = useState(false);
 
@@ -44,7 +46,11 @@ export default function Img({ src, srcSet, alt, priority = false, className = ''
         if (el && el.complete && el.naturalWidth && state === 'loading') setState('loaded');
       }}
       onLoad={() => setState('loaded')}
-      onError={() => (srcSet && !plain ? setPlain(true) : setState('error'))}
+      onError={() => {
+        if (srcSet && !plain) return setPlain(true);
+        setState('error');
+        onFail?.();
+      }}
     />
   );
 

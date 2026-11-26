@@ -15,6 +15,8 @@
    Collections (see firestore.rules and src/admin/README.md):
      admins/{uid} · services · customers · appointments · invoices ·
      payments · expenses · settings/studio · counters · requestKeys
+     Instagram gallery (read on demand, not synced): galleryMedia ·
+     integrations/instagram · syncRuns — see ./galleryFirestore.ts
    ===================================================================== */
 import {
   browserLocalPersistence,
@@ -61,6 +63,9 @@ import { paymentStatus } from '../lib/billing.ts';
 import { today } from '../lib/format.ts';
 import type { MenuItem } from '../lib/websiteMenu.ts';
 import type { AdminApi, LoginInput } from './contract.ts';
+import { createGalleryFirestoreApi } from './galleryFirestore.ts';
+import { createVideosFirestoreApi } from './manualVideosApi.ts';
+import { createR2MediaApi } from './r2MediaApi.ts';
 import {
   ApiError,
   applyPayments,
@@ -604,4 +609,13 @@ export const firestoreApi: AdminApi = {
     }),
     resetDemoData: call(() => fail(400, 'There is no demo data to reset: the admin is connected to Firebase.')),
   },
+
+  /* ---------- Instagram gallery (./galleryFirestore.ts) ---------- */
+  gallery: createGalleryFirestoreApi(call),
+
+  /* ---------- Manual Instagram video gallery (./manualVideosApi.ts) ---------- */
+  videos: createVideosFirestoreApi(call),
+
+  /* ---------- Cloudflare R2 media gallery (./r2MediaApi.ts) ---------- */
+  media: createR2MediaApi(call),
 };

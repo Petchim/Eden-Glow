@@ -7,6 +7,9 @@
    ===================================================================== */
 import type { AdminProfile, AppointmentStatus, Customer, Expense, Service, StudioSettings } from '../../types/models.ts';
 import type { MenuItem } from '../lib/websiteMenu.ts';
+import type { GalleryAdminApi } from './galleryTypes.ts';
+import type { VideoAdminApi } from '../../types/video.ts';
+import type { R2MediaAdminApi } from '../../types/media.ts';
 import type {
   AdminNotification,
   AppointmentInput,
@@ -45,6 +48,10 @@ export type {
   ServiceListQuery,
   SettingsInput,
 } from './engine.ts';
+
+export * from './galleryTypes.ts';
+export * from '../../types/video.ts';
+export * from '../../types/media.ts';
 
 /* ---------- responses ---------- */
 export type SearchResults = ReturnType<Views['search']>;
@@ -117,4 +124,10 @@ export interface AdminApi {
     /** Demo mode only. */
     resetDemoData(): Promise<boolean>;
   };
+  /** Instagram gallery: connection, imported posts, sync history (see ./galleryTypes.ts). */
+  gallery: GalleryAdminApi;
+  /** Manual Instagram video gallery (Reels & video posts). */
+  videos: VideoAdminApi;
+  /** Cloudflare R2 media management (Images & Videos). */
+  media: R2MediaAdminApi;
 }

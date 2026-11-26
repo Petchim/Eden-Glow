@@ -3,7 +3,8 @@ rules_version = '2';
 // Eden Glow Studio — Cloud Firestore security rules.
 //
 // Who can do what:
-//   • Public visitors: read services marked `published: true`. Nothing else.
+//   • Public visitors: read services marked `published: true`, and Instagram
+//     gallery posts the owner has published. Nothing else.
 //   • The salon owner: signed in with Firebase Authentication AND listed at
 //     admins/{uid} (that document is created by hand in the Firebase Console;
 //     no one can create it from the website). Only the owner can read or change
@@ -226,6 +227,202 @@ service cloud.firestore {
         && request.resource.data.invoiceId is string
         && request.resource.data.createdAt == request.time;
       allow update, delete: if false;
+    }
+
+    // ---------- manual instagram video gallery ----------
+    match /galleryVideos/{id} {
+      allow read: if isAdmin() || (resource != null && resource.data.status == 'PUBLISHED');
+      allow create: if isAdmin() && validVideoCreate(request.resource.data);
+      allow update: if isAdmin() && validVideoUpdate(request.resource.data);
+      allow delete: if isAdmin();
+
+      function validVideoCreate(d) {
+        return d.keys().hasAll(['instagramUrl', 'shortcode', 'postType', 'status', 'sortOrder', 'createdAt', 'updatedAt', 'createdBy'])
+          && (
+            d.keys().hasOnly(['instagramUrl', 'shortcode', 'postType', 'status', 'sortOrder', 'createdAt', 'updatedAt', 'createdBy'])
+            || d.keys().hasOnly(['id', 'instagramUrl', 'shortcode', 'postType', 'status', 'sortOrder', 'createdAt', 'updatedAt', 'createdBy'])
+          )
+          && (!('id' in d) || d.id == id)
+          && d.instagramUrl is string && d.instagramUrl.size() <= 500 && d.instagramUrl.matches('^https://(www[.])?instagram[.]com/(reel|p)/[A-Za-z0-9_-]+/?.*$')
+          && d.shortcode is string && d.shortcode.size() <= 64
+          && d.postType in ['REEL', 'VIDEO']
+          && d.status in ['PUBLISHED', 'HIDDEN']
+          && isNum(d.sortOrder)
+          && isStr(d.createdAt, 50)
+          && isStr(d.updatedAt, 50)
+          && d.createdBy == request.auth.uid
+          && id == 'vid_' + d.shortcode;
+      }
+
+      function validVideoUpdate(d) {
+        return d.keys().hasAll(['instagramUrl', 'shortcode', 'postType', 'status', 'sortOrder', 'createdAt', 'updatedAt', 'createdBy'])
+          && (
+            d.keys().hasOnly(['instagramUrl', 'shortcode', 'postType', 'status', 'sortOrder', 'createdAt', 'updatedAt', 'createdBy'])
+            || d.keys().hasOnly(['id', 'instagramUrl', 'shortcode', 'postType', 'status', 'sortOrder', 'createdAt', 'updatedAt', 'createdBy'])
+          )
+          && (!('id' in d) || d.id == id)
+          && d.instagramUrl is string && d.instagramUrl.size() <= 500
+          && d.shortcode is string && d.shortcode.size() <= 64
+          && d.postType in ['REEL', 'VIDEO']
+          && d.status in ['PUBLISHED', 'HIDDEN']
+          && isNum(d.sortOrder)
+          && isStr(d.updatedAt, 50)
+          && d.createdBy == resource.data.createdBy
+          && d.createdAt == resource.data.createdAt
+          && d.shortcode == resource.data.shortcode
+          && d.instagramUrl == resource.data.instagramUrl;
+      }
+    }
+
+    // ================= Instagram gallery =================
+    // Posts are imported by the Instagram sync: a Cloudflare Worker signed in as the Sync Bot, a
+    // Firebase Auth user listed at syncBots/{uid} (created by hand in the Console, like admins).
+    // The bot may ONLY: create new posts (hidden or published, never featured or categorised),
+    // update the Instagram-owned fields of posts, write the connection/sync status and the sync
+    // history. It cannot read or write anything else, and is not an admin.
+    // The website can read a post only once it is published and still on Instagram; the owner can
+    // change only the fields they manage. Instagram tokens are never stored in Firestore.
+    function isSyncBot() {
+      return signedIn() && exists(/databases/$(database)/documents/syncBots/$(request.auth.uid));
+    }
+    match /syncBots/{uid} {
+      allow read, write: if false;
+    }
+
+    match /galleryMedia/{id} {
+      allow read: if isAdmin() || isSyncBot() || (resource != null && (resource.data.status in ['published', 'PUBLISHED']) && (resource.data.storageProvider == 'CLOUDFLARE_R2' || resource.data.available == true));
+      allow create: if (isAdmin() && validR2MediaCreate(request.resource.data))
+        || (isSyncBot() && validBotCreate(request.resource.data));
+      // The owner's edits always stamp ownerUpdatedAt (server time): the Worker's 15-minute check
+      // re-applies any post changed since its last check, so a lost notification can't leave the
+      // public cache wrong.
+      allow update: if (isAdmin() && resource.data.storageProvider == 'CLOUDFLARE_R2' && validR2MediaUpdate(request.resource.data))
+        || (isAdmin()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'category', 'featured', 'altText', 'sortOrder', 'updatedAt', 'ownerUpdatedAt'])
+          && request.resource.data.ownerUpdatedAt == request.time
+          && validMediaAdmin(request.resource.data))
+        || (isSyncBot()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(syncFields())
+          && request.resource.data.igId == resource.data.igId
+          && validSynced(request.resource.data) && stampOk(request.resource.data));
+      allow delete: if isAdmin() && resource.data.storageProvider == 'CLOUDFLARE_R2';
+
+      function validR2MediaCreate(d) {
+        return d.keys().hasAll(['fileName', 'originalFileName', 'mediaType', 'storageProvider', 'storageKey', 'publicUrl', 'mimeType', 'sizeBytes', 'status', 'sortOrder', 'createdAt', 'updatedAt', 'createdBy'])
+          && d.storageProvider == 'CLOUDFLARE_R2'
+          && d.mediaType in ['IMAGE', 'VIDEO']
+          && d.status in ['PUBLISHED', 'HIDDEN']
+          && isStr(d.fileName, 200)
+          && isStr(d.originalFileName, 200)
+          && isStr(d.storageKey, 300)
+          && isStr(d.publicUrl, 1000)
+          && isStr(d.mimeType, 100)
+          && isNum(d.sizeBytes) && d.sizeBytes >= 0 && d.sizeBytes <= 150000000
+          && isNum(d.sortOrder)
+          && isStr(d.createdAt, 50)
+          && isStr(d.updatedAt, 50)
+          && d.createdBy == request.auth.uid;
+      }
+
+      function validR2MediaUpdate(d) {
+        return d.storageProvider == 'CLOUDFLARE_R2'
+          && d.mediaType in ['IMAGE', 'VIDEO']
+          && d.status in ['PUBLISHED', 'HIDDEN']
+          && isNum(d.sortOrder)
+          && isStr(d.updatedAt, 50)
+          && d.storageKey == resource.data.storageKey
+          && d.createdBy == resource.data.createdBy
+          && d.createdAt == resource.data.createdAt;
+      }
+
+      function validMediaAdmin(d) {
+        return d.status in ['hidden', 'published']
+          && (d.category == null || d.category in ['Hair', 'Skin', 'Nails', 'Lashes', 'Makeup', 'Transformations', 'Salon Interior'])
+          && d.featured is bool
+          && isStr(d.altText, 300)
+          && isNum(d.sortOrder)
+          && stampOk(d);
+      }
+      // Fields the Instagram sync owns (the owner's fields are never among them).
+      function syncFields() {
+        return ['source', 'igId', 'accountId', 'kind', 'productType', 'isReel', 'mediaUrl', 'thumbnailUrl', 'permalink',
+                'caption', 'takenAt', 'children', 'available', 'likeCount', 'syncedAt', 'unavailableSince', 'updatedAt'];
+      }
+      function httpsOrNull(v) {
+        return v == null || (v is string && v.size() <= 2048 && v.matches('^https://.*'));
+      }
+      function validSynced(d) {
+        return d.source == 'instagram'
+          && d.igId is string && d.igId.matches('^[0-9A-Za-z_]{1,64}$')
+          && isStr(d.accountId, 64)
+          && d.kind in ['image', 'video', 'carousel']
+          && d.isReel is bool
+          && isStr(d.productType, 20)
+          && httpsOrNull(d.mediaUrl) && httpsOrNull(d.thumbnailUrl)
+          && d.permalink is string && d.permalink.size() <= 2048 && d.permalink.matches('^https://(www[.])?instagram[.]com/.*')
+          && isStr(d.caption, 2200)
+          && isStr(d.takenAt, 40)
+          && d.children is list && d.children.size() <= 20
+          && d.available is bool
+          && (!('likeCount' in d) || d.likeCount == null || (d.likeCount is int && d.likeCount >= 0));
+      }
+      function validBotCreate(d) {
+        return d.keys().hasOnly(syncFields().concat(['status', 'category', 'featured', 'altText', 'sortOrder', 'createdAt']))
+          && d.keys().hasAll(['source', 'igId', 'kind', 'permalink', 'available', 'status', 'sortOrder'])
+          && id == 'ig_' + d.igId
+          && validSynced(d)
+          && d.status in ['hidden', 'published']
+          && d.category == null && d.featured == false && d.altText == ''
+          && isNum(d.sortOrder)
+          && stampOk(d);
+      }
+    }
+
+    // Connection status. Owner: reads it and sets the auto-publish switch.
+    // Sync Bot: reads it and writes only the connection/sync status fields.
+    match /integrations/{name} {
+      allow get: if isAdmin() || isSyncBot();
+      allow create: if name == 'instagram' && (
+        (isAdmin() && ownerIntegration(request.resource.data, request.resource.data.keys()))
+        || (isSyncBot() && botIntegration(request.resource.data, request.resource.data.keys())));
+      allow update: if name == 'instagram' && (
+        (isAdmin() && ownerIntegration(request.resource.data, request.resource.data.diff(resource.data).affectedKeys()))
+        || (isSyncBot() && botIntegration(request.resource.data, request.resource.data.diff(resource.data).affectedKeys())));
+      allow list, delete: if false;
+
+      function ownerIntegration(d, changed) {
+        return changed.hasOnly(['autoPublish', 'updatedAt'])
+          && d.autoPublish is bool
+          && stampOk(d);
+      }
+      function botIntegration(d, changed) {
+        return changed.hasOnly(['connected', 'accountId', 'username', 'accountType', 'connectedAt', 'disconnectedAt', 'tokenExpiresAt',
+                                'tokenRefreshedAt', 'lastSyncAt', 'lastCheckedAt', 'lastSyncStatus', 'lastSyncRunId', 'lastError',
+                                'needsReconnect', 'lastManualSyncAt', 'updatedAt'])
+          && (!('connected' in d) || d.connected is bool)
+          && (!('needsReconnect' in d) || d.needsReconnect is bool)
+          && (!('username' in d) || isStr(d.username, 64))
+          && (!('lastSyncStatus' in d) || d.lastSyncStatus in ['success', 'failed'])
+          && stampOk(d);
+      }
+    }
+
+    // Sync history: the owner reads it; only the Sync Bot writes it (and prunes old runs).
+    match /syncRuns/{id} {
+      allow read: if isAdmin() || isSyncBot();
+      allow create, update: if isSyncBot() && id.matches('^run_[a-z0-9]{6,30}$') && validRun(request.resource.data);
+      allow delete: if isSyncBot();
+
+      function validRun(d) {
+        return d.keys().hasOnly(['id', 'trigger', 'retryOf', 'status', 'startedAt', 'finishedAt', 'pages', 'fetched', 'created',
+                                 'updated', 'removed', 'skipped', 'complete', 'error'])
+          && d.id == id
+          && d.trigger in ['manual', 'scheduled', 'retry', 'connect', 'refresh']
+          && d.status in ['running', 'success', 'failed']
+          && isStr(d.startedAt, 40)
+          && isNum(d.created) && isNum(d.updated) && isNum(d.removed)
+          && d.complete is bool;
+      }
     }
   }
 }

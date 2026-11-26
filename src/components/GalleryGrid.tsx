@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import type { GalleryImage, GalleryRatio, GalleryVariant } from '../types/content.ts';
-import { GALLERY_CATEGORIES } from '../data/images.ts';
+import { GALLERY_CATEGORIES, REELS_FILTER } from '../data/images.ts';
 import { useColumns, type Breakpoints } from '../hooks/useColumns.ts';
 import Img from './ui/Img.tsx';
+import Icon from './ui/Icon.tsx';
 import Lightbox from './Lightbox.tsx';
 
 const RATIO_H: Record<GalleryRatio, number> = { p: 1.25, t: 1.5, s: 1, l: 0.75 }; // height ÷ width
@@ -31,16 +32,34 @@ interface TileProps extends Placed {
   forceRatio?: string;
 }
 
+/** 'All', a category, or the Instagram Reels filter (every imported video). */
+export const matchesFilter = (g: GalleryImage, filter: string): boolean =>
+  filter === 'All' || (filter === REELS_FILTER ? g.kind === 'video' && g.source === 'instagram' : g.cat === filter);
+
+/** Stable React key: Instagram posts have an id, stock photos a unique src. */
+export const itemKey = (item: GalleryImage): string => item.id || item.src;
+export const itemAlt = (item: GalleryImage): string => item.alt || `${item.cat}: ${item.caption}`;
+
 function Tile({ item, index, onOpen, sizes, forceRatio }: TileProps) {
+  const video = item.kind === 'video';
+  const what = video ? (item.isReel ? 'Play reel' : 'Play video') : item.kind === 'carousel' ? 'Open post' : 'Open image';
   return (
     <button
       type="button"
-      className="gtile zoom-on-hover"
+      className={`gtile zoom-on-hover ${video ? 'gtile--video' : ''}`}
       style={{ '--i': index, aspectRatio: forceRatio || (item.ratio && RATIO_CSS[item.ratio]) || RATIO_CSS.p }}
       onClick={() => onOpen(index)}
-      aria-label={`Open image ${index + 1}: ${item.cat} — ${item.caption}`}
+      aria-label={`${what} ${index + 1}: ${item.cat} — ${item.caption}${item.featured ? ' (featured)' : ''}`}
     >
-      <Img src={item.src} alt={`${item.cat}: ${item.caption}`} sizes={sizes} />
+      <Img src={item.src} alt={itemAlt(item)} sizes={sizes} />
+      {video && <span className="gtile-play" aria-hidden="true"><Icon name="play" size={26} stroke={1.1} /></span>}
+      {(item.source === 'instagram' || item.featured) && (
+        <span className="gtile-badges" aria-hidden="true">
+          {item.featured && <span className="gtile-badge gtile-badge--feat"><Icon name="sparkle" size={13} /></span>}
+          {item.kind === 'carousel' && <span className="gtile-badge"><Icon name="copy" size={13} /></span>}
+          {item.source === 'instagram' && <span className="gtile-badge"><Icon name="instagram" size={13} /></span>}
+        </span>
+      )}
       <span className="gtile-cap" aria-hidden="true"><b>{item.cat}</b>{item.caption}</span>
     </button>
   );
@@ -61,27 +80,28 @@ interface GalleryGridProps {
   onFilter?: (category: string) => void;
   columns?: Breakpoints;
   note?: boolean;
+  /** Shown under the grid, above the note (e.g. "Load more"). */
+  after?: ReactNode;
 }
 
-export default function GalleryGrid({ items, variant = 'masonry', filters = false, filter: ctrlFilter, onFilter, columns, note = true }: GalleryGridProps) {
+export default function GalleryGrid({ items, variant = 'masonry', filters = false, filter: ctrlFilter, onFilter, columns, note = true, after }: GalleryGridProps) {
   const [ownFilter, setOwnFilter] = useState('All');
   const filter = ctrlFilter ?? ownFilter;
   const setFilter = onFilter ?? setOwnFilter;
   const [active, setActive] = useState(-1);
   const colCount = useColumns(columns);
 
-  const shown = useMemo(
-    () => (filter === 'All' ? items : items.filter((g) => g.cat === filter)),
-    [items, filter],
-  );
+  const shown = useMemo(() => items.filter((g) => matchesFilter(g, filter)), [items, filter]);
   const cols = useMemo(() => toColumns(shown, Math.min(colCount, Math.max(shown.length, 1))), [shown, colCount]);
+  const hasStock = shown.some((g) => g.source !== 'instagram');
+  const hasInstagram = shown.some((g) => g.source === 'instagram');
 
   return (
     <div className={`ggrid ggrid--${variant}`}>
       {filters && (
         <div className="filters" role="group" aria-label="Filter gallery by category">
           {GALLERY_CATEGORIES.map((f) => {
-            const n = f === 'All' ? items.length : items.filter((g) => g.cat === f).length;
+            const n = items.filter((g) => matchesFilter(g, f)).length;
             return (
               <button
                 key={f}
@@ -99,12 +119,16 @@ export default function GalleryGrid({ items, variant = 'masonry', filters = fals
           })}
         </div>
       )}
-      {filters && <p className="visually-hidden" aria-live="polite">{`Showing ${shown.length} ${filter === 'All' ? '' : filter} photos`}</p>}
+      {filters && <p className="visually-hidden" aria-live="polite">{`Showing ${shown.length} ${filter === 'All' ? '' : filter} ${hasInstagram ? 'photos and videos' : 'photos'}`}</p>}
 
-      {variant === 'strip' ? (
+      {shown.length === 0 ? (
+        <p className="gempty">
+          {filter === REELS_FILTER ? 'Reels from our Instagram will appear here soon.' : `New ${filter.toLowerCase()} work is on its way. Take a look at another category in the meantime.`}
+        </p>
+      ) : variant === 'strip' ? (
         <ul className="gstrip">
           {shown.map((item, i) => (
-            <li key={item.src}>
+            <li key={itemKey(item)}>
               <Tile item={item} index={i} onOpen={setActive} sizes="(max-width: 700px) 70vw, 20vw" forceRatio="4 / 5" />
             </li>
           ))}
@@ -114,7 +138,7 @@ export default function GalleryGrid({ items, variant = 'masonry', filters = fals
           {cols.map((col, c) => (
             <ul className="gcol" key={c}>
               {col.items.map(({ item, index }) => (
-                <li key={item.src}>
+                <li key={itemKey(item)}>
                   <Tile item={item} index={index} onOpen={setActive} sizes={`(max-width: 700px) 50vw, ${Math.round(100 / colCount)}vw`} />
                 </li>
               ))}
@@ -123,7 +147,14 @@ export default function GalleryGrid({ items, variant = 'masonry', filters = fals
         </div>
       )}
 
-      {note && <p className="fine gallery-note">Images shown are temporary stock photography, used for illustration — not Eden Glow Studio clients or results.</p>}
+      {after}
+      {note && hasStock && (
+        <p className="fine gallery-note">
+          {hasInstagram
+            ? 'Posts marked with the Instagram icon are from Eden Glow Studio’s Instagram. Other images are temporary stock photography, used for illustration — not Eden Glow Studio clients or results.'
+            : 'Images shown are temporary stock photography, used for illustration — not Eden Glow Studio clients or results.'}
+        </p>
+      )}
       {active >= 0 && <Lightbox items={shown} index={active} onChange={setActive} onClose={() => setActive(-1)} />}
     </div>
   );

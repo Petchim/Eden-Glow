@@ -184,6 +184,21 @@ const P = {
       <circle cx="12" cy="18.5" r="1.2" fill="currentColor" />
     </>
   ),
+  instagram: (
+    <>
+      <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.2" cy="6.8" r="0.6" fill="currentColor" />
+    </>
+  ),
+  play: <path d="M8 5.5v13l10.5-6.5z" />,
+  link: <path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />,
+  images: (
+    <>
+      <rect x="3.5" y="5" width="14" height="14" rx="2" />
+      <path d="M7 5V3.5h13.5V17H17.5M3.5 15.5l4-4 3.5 3.5 2.5-2.5 4 4" />
+    </>
+  ),
 } satisfies Record<string, ReactElement>;
 
 export type AIconName = keyof typeof P;
